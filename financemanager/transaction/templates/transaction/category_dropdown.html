@@ -1,0 +1,11 @@
+{% for category in categories %}
+    <option
+            value="{{ category.id }}"
+            {% if category.name == 'Other' %} selected {% endif %}
+    >
+        {{ category.name }}
+    </option>
+{% endfor %}
+<option value="">
+    Other
+</option>

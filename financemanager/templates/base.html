@@ -1,0 +1,50 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+    	    Base
+        {% endblock %}
+    </title>
+</head>
+<body>
+
+    <header style="border-bottom: 1px black solid; flex-direction: row">
+        Finance manager
+        {% if user.is_authenticated %}
+            <a href="{% url 'transaction:dashboard' %}">Dashboard</a>
+            <a href="{% url 'transaction:create-trans' %}">New transaction</a>
+            <a href="{% url 'transaction:trans-list' %}">History</a>
+            <a href="">Statistics</a>
+
+            Hello, {% firstof user.firstname user.email %}!
+
+            <form action="{% url 'authapp:logout' %}" method="POST">
+                {% csrf_token %}
+                <button>Logout</button>
+            </form>
+        {% else %}
+            <a href="{% url 'authapp:login' %}">LogIn</a>
+        {% endif %}
+    </header>
+
+
+    {% block body %}
+
+    {% endblock %}
+
+    <script src="https://unpkg.com/htmx.org"></script>
+    <script>
+    // Автоматическая загрузка категорий при начальной загрузке
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.getElementById('id_type');
+        if (typeSelect.value) {
+            htmx.trigger(typeSelect, 'change');
+        }
+    });
+    </script>
+</body>
+</html>
