@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	Dashboard
+{% endblock %}
+
+{% block body %}
+    
+    {% include 'transaction/transaction_list_filter_form.html' %}
+
+    <ul>
+    {% for transaction in filter.qs %}
+    	<li>{{ transaction.category }},
+            {{ transaction.amount }} {{ user.currency.symbol }},
+            {{ transaction.date }},
+            {{ description|truncatewords:3 }}
+        </li>
+    {% endfor %}
+
+    </ul>
+
+{% endblock %}

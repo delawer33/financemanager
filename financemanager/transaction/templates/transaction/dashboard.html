@@ -8,33 +8,13 @@
 
     Dashboard
 
-    <div style="width:45%">
-        <canvas id="chart1"></canvas>
-    </div>
+    <select name="select_diagrams" id="select_diagrams" hx-target="#diagram" hx-trigger="load, change" hx-get="{% url 'diagram:stats_dynamic_last_month' %}">
+        <option selected hx-get="{% url 'diagram:stats_dynamic_last_month' %}">
+            Income/Outcome dynamics
+        </option>
+    </select>
+{#    <button hx-target="#diagram" hx-get="{% url 'diagram:stats_dynamic_last_month' %}">a</button>#}
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <script>
-        const ctx = document.getElementById('chart1');
-
-        new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                datasets: [{
-                    label: '# of Votes',
-                    data: [12, 19, 3, 5, 2, 3],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    </script>
+    <div id="diagram"></div>
 
 {% endblock %}

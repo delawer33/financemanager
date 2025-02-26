@@ -1,11 +1,4 @@
-{% extends 'base.html' %}
-
-{% block title %}
-	Dashboard
-{% endblock %}
-
-{% block body %}
-    {{ request.GET }}
+{{ request.GET }}
     <form method="GET" action="" id="filter-form">
 <!--        {{ filter.form.as_p }}-->
         <label for="id_type">Type</label>
@@ -23,16 +16,3 @@
         {{ filter.form.description }}
         <button type="submit">Filter</button>
     </form>
-
-    <ul>
-    {% for transaction in filter.qs %}
-    	<li>{{ transaction.category }},
-            {{ transaction.amount }} {{ user.currency.symbol }},
-            {{ transaction.date }},
-            {{ description|truncatewords:3 }}
-        </li>
-    {% endfor %}
-
-    </ul>
-
-{% endblock %}
