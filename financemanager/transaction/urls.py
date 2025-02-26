@@ -17,7 +17,7 @@ router = DefaultRouter()
 router.register('transactions', TransactionViewset)
 
 urlpatterns = [
-    path('dashboard/', dashboard, name='dashboard'),
+    # path('dashboard/', dashboard, name='dashboard'),
     path('create/', TransactionCreate.as_view(), name='create-trans'),
     path('history/', transaction_list, name='trans-list'),
     path('get_categories/', get_categories_by_type, name='get-categories'),

@@ -1,4 +1,4 @@
-from django_filters import FilterSet, DateFromToRangeFilter, Filter
+from django_filters import FilterSet, DateFromToRangeFilter, Filter, DateRangeFilter
 from django_filters.widgets import RangeWidget
 from django.db.models import Q
 
