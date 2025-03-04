@@ -65,8 +65,8 @@ def weekday_to_number(weekday):
 
 
 def extended_period_stats(qs):
+    """Generates extended statistics for statistics page (for now it's only heatmap)"""
     data = period_stats(qs)
-    expense_heatmap = []
     hm_qs = qs.order_by('date').filter(type="OUTCOME")
     hm_data = [
         {
@@ -75,21 +75,19 @@ def extended_period_stats(qs):
         }
         for t in hm_qs
     ]
+
     df = pd.DataFrame(hm_data)
     df['weekday'] = pd.to_datetime(df['date']).dt.day_name()
     df['week'] = pd.to_datetime(df['date']).dt.isocalendar().week
 
     heatmap_data = df.groupby(['weekday', 'week'])['amount'].sum().reset_index()
 
-    print(heatmap_data)
-
     heatmap_data['weekday_num'] = heatmap_data['weekday'].map(weekday_to_number)
     heatmap_data = heatmap_data.sort_values(by=['week', 'weekday_num'])
+    heatmap_data['week'] = heatmap_data['week'].map(lambda x: x - (heatmap_data.iloc[0]['week'] - 1))
 
     weeks_names_for_heatmap = list(map(int, heatmap_data['week'].unique()))
-    print(weeks_names_for_heatmap)
 
-    print(heatmap_data)
     heatmap_list = [
         {
             'x': row['weekday'],
@@ -102,5 +100,5 @@ def extended_period_stats(qs):
     data['heatmap'] = heatmap_list
     data['weeks_names_for_heatmap'] = weeks_names_for_heatmap
     data['day_names_for_heatmap'] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    # print(df)
+
     return data

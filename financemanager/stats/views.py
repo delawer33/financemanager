@@ -12,6 +12,7 @@ def stats_view(request):
     data = extended_period_stats(transactions)
 
     context = {
+        'filter': transaction_filter,
         'total_income': data['total_income'],
         'total_expense': data['total_expense'],
         'balance': data['balance'],

@@ -29,4 +29,4 @@ class TransactionFilter(FilterSet):
 
     class Meta:
         model = Transaction
-        fields = ['type',]
+        fields = ('type',)
