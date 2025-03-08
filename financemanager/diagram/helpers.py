@@ -1,7 +1,7 @@
 import pandas as pd
-from django.db.models import Sum
+from django.db.models import Sum, Count
 
-from transaction.models import Transaction
+from transaction.models import Transaction, Category
 
 
 def period_stats(qs):
@@ -64,9 +64,28 @@ def weekday_to_number(weekday):
             return 6
 
 
-def extended_period_stats(qs):
-    """Generates extended statistics for statistics page (for now it's only heatmap)"""
-    data = period_stats(qs)
+def expense_frequency_data(qs):
+    qs = qs.filter(type="OUTCOME").values('category__name').annotate(count=Count('id'))
+    expense_frequency_categories = []
+    expense_frequency_values = []
+
+    for t in qs:
+        if t['category__name']:
+            expense_frequency_categories.append(t['category__name'])
+        else:
+            expense_frequency_categories.append('Other')
+
+        expense_frequency_values.append(t['count'])
+    
+    return {
+        'expense_frequency_categories': expense_frequency_categories,
+        'expense_frequency_values': expense_frequency_values
+    }
+
+
+def get_data_for_heatmap(qs):
+    heatmap_list = []
+    weeks_names_for_heatmap = []
     hm_qs = qs.order_by('date').filter(type="OUTCOME")
     hm_data = [
         {
@@ -76,29 +95,39 @@ def extended_period_stats(qs):
         for t in hm_qs
     ]
 
-    df = pd.DataFrame(hm_data)
-    df['weekday'] = pd.to_datetime(df['date']).dt.day_name()
-    df['week'] = pd.to_datetime(df['date']).dt.isocalendar().week
+    if hm_data:
 
-    heatmap_data = df.groupby(['weekday', 'week'])['amount'].sum().reset_index()
+        df = pd.DataFrame(hm_data)
+        df['weekday'] = pd.to_datetime(df['date']).dt.day_name()
+        df['week'] = pd.to_datetime(df['date']).dt.isocalendar().week
 
-    heatmap_data['weekday_num'] = heatmap_data['weekday'].map(weekday_to_number)
-    heatmap_data = heatmap_data.sort_values(by=['week', 'weekday_num'])
-    heatmap_data['week'] = heatmap_data['week'].map(lambda x: x - (heatmap_data.iloc[0]['week'] - 1))
+        heatmap_data = df.groupby(['weekday', 'week'])['amount'].sum().reset_index()
 
-    weeks_names_for_heatmap = list(map(int, heatmap_data['week'].unique()))
+        heatmap_data['weekday_num'] = heatmap_data['weekday'].map(weekday_to_number)
+        heatmap_data = heatmap_data.sort_values(by=['week', 'weekday_num'])
+        heatmap_data['week'] = heatmap_data['week'].map(lambda x: x - (heatmap_data.iloc[0]['week'] - 1))
 
-    heatmap_list = [
-        {
-            'x': row['weekday'],
-            'y': f"{row['week']}",
-            'heat': row['amount']
-        }
-        for _, row in heatmap_data.iterrows()
-    ]
+        weeks_names_for_heatmap = list(map(int, heatmap_data['week'].unique()))
 
-    data['heatmap'] = heatmap_list
-    data['weeks_names_for_heatmap'] = weeks_names_for_heatmap
-    data['day_names_for_heatmap'] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        heatmap_list = [
+            {
+                'x': row['weekday'],
+                'y': f"{row['week']}",
+                'heat': row['amount']
+            }
+            for _, row in heatmap_data.iterrows()
+        ]
+    return {
+        'heatmap': heatmap_list,
+        'weeks_names_for_heatmap': weeks_names_for_heatmap,
+        'day_names_for_heatmap': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    }
+
+
+def extended_period_stats(qs):
+    """Generates extended statistics for statistics page"""
+    data = period_stats(qs)
+    data.update(get_data_for_heatmap(qs))
+    data.update(expense_frequency_data(qs))
 
     return data

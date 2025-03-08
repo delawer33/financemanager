@@ -6,28 +6,6 @@
 
 {% block body %}
 
-    <style>
-        .metrics {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .card {
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            width: 200px;
-        }
-        .charts {
-            display: flex;
-            justify-content: space-between;
-        }
-        .chart-container {
-            width: 45%;
-        }
-    </style>
-
     <div class="metrics">
         <div class="card">
             <h3>Income</h3>
@@ -75,6 +53,8 @@
                 ]
             },
             options: {
+                devicePixelRatio: 2,
+                maintainAspectRatio: false,
                 responsive: true,
                 scales: {
                     x: { title: { display: true, text: 'Date' } },
@@ -99,6 +79,8 @@
                 }]
             },
             options: {
+                devicePixelRatio: 2,
+                maintainAspectRatio: false,
                 responsive: true,
                 plugins: {
                     legend: { position: 'bottom' }

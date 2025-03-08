@@ -6,22 +6,36 @@
 
 {% block body %}
 
-	<form action="" method="POST">
+<div class="form-container">
+    <form action="" method="POST">
         {% csrf_token %}
-{#        {{ form.as_p }}#}
-        <label for="id_type">Type</label>
-        <select name="type" id="id_type" hx-trigger="load, click" hx-get="{% url 'transaction:get-categories' %}" hx-target="#id_category">
-            <option value="OUTCOME">Outcome</option>
-            <option value="INCOME">Income</option>
-        </select>
-        <label for="id_category">Category</label>
-        <select name="category" id="id_category">
+        <div class="form-group">
+            <label for="id_type">Type</label>
+            <select name="type" id="id_type" hx-trigger="load, click" hx-get="{% url 'transaction:get-categories' %}" hx-target="#id_category">
+                <option value="OUTCOME">Outcome</option>
+                <option value="INCOME">Income</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="id_category">Category</label>
+            <select name="category" id="id_category">
 
-        </select>
-        {{ form.date }}
-        {{ form.amount }}
-        {{ form.description }}
-        <input type="submit">
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="id_date">Date</label>
+            {{ form.date }}
+        </div>
+        <div class="form-group">
+            <label for="id_amount">Amount</label>
+            {{ form.amount }}
+        </div>
+        <div class="form-group" style="width: 100%">
+            <label for="id_description">Description</label>
+            {{ form.description }}
+        </div>
+        <button type="submit" class="submit-button">Submit</button>
     </form>
+</div>
 
 {% endblock %}

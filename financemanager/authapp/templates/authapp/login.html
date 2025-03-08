@@ -6,10 +6,12 @@
 
 {% block body %}
 
-	<form action="" method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit">
-    </form>
+	<div class="filter-form">
+        <form action="" method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit">
+        </form>
+    </div>
 
 {% endblock %}

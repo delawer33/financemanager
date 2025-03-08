@@ -7,27 +7,7 @@
 
 {% block body %}
 
-    <style>
-        .metrics {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .card {
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            width: 200px;
-        }
-        .charts {
-            display: flex;
-            justify-content: space-between;
-        }
-        .chart-container {
-            width: 45%;
-        }
-    </style>
+    
 
     <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-core.min.js"></script>
     <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-heatmap.min.js"></script>
@@ -49,7 +29,7 @@
         </div>
     </div>
 
-    <div class="charts" style="display: inline-block;width: 100%;height: 2000px">
+    <div class="charts">
         <div class="chart-container">
             <canvas id="incomeExpenseChart"></canvas>
         </div>
@@ -59,9 +39,38 @@
         </div>
 
         <div class="chart-container" style="width: 700px;">
+            <canvas id="expenseCateoriesFreqChart"></canvas>
+        </div>
+
+        <div class="chart-container" style="width: 700px;">
             <div id="heatMap"></div>
         </div>
     </div>
+
+
+    <div class="filter-form">
+        <form method="GET" hx-trigger="load, change" hx-vals='{"date_min":"{{ request.GET.date_min }}"}' action="" id="filter-form" hx-get="{% url 'transaction:trans-list-for-stats' %}" hx-target="#transactionList">
+            <label for="id_type">Type</label>
+            <select name="type" id="id_type" hx-vals='{"category":"{{ request.GET.category }}"}' hx-trigger="load, change" hx-get="{% url 'transaction:get-categories-for-filter' %}" hx-target="#id_category">
+                <option value="Notype" {% if request.GET.type == 'Notype' %}selected{% endif %}>---------</option>
+                <option value="OUTCOME" {% if request.GET.type == 'OUTCOME' %}selected{% endif %}>Outcome</option>
+                <option value="INCOME" {% if request.GET.type == 'INCOME' %}selected{% endif %}>Income</option>
+            </select>
+            <label for="id_category">Category</label>
+            <select name="category" id="id_category">
+                {% include 'transaction/category_dropdown.html' %}
+            </select>
+            <label>Sort by</label>
+            {{ filter.form.sort_by }}
+        </form>
+    
+    </div>
+
+    <div id="transactionList">
+        {% comment %} {% include "transaction/transaction_list_for_stats.html" %} {% endcomment %}
+    </div>
+        
+
 
      <script>
         const incomeExpenseCtx = document.getElementById('incomeExpenseChart').getContext('2d');
@@ -85,6 +94,8 @@
                 ]
             },
             options: {
+                devicePixelRatio: 2,
+                maintainAspectRatio: false,
                 responsive: true,
                 scales: {
                     x: { title: { display: true, text: 'Date' } },
@@ -109,6 +120,33 @@
                 }]
             },
             options: {
+                devicePixelRatio: 2,
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+        
+        const expenseCateoriesFreqChart = document.getElementById('expenseCateoriesFreqChart').getContext('2d');
+        new Chart(expenseCateoriesFreqChart, {
+            type: 'doughnut',
+            data: {
+                labels: [{% for c in expense_frequency_categories %} "{{ c }}", {% endfor %}],
+                datasets: [{
+                    data: [{% for v in expense_frequency_values %}
+                    {{ v }},
+                    {% endfor %}],
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                        '#FF9F40', '#FFCD56', '#C9CBCF', '#4D5360', '#F7464A'
+                    ]
+                }]
+            },
+            options: {
+                devicePixelRatio: 2,
+                maintainAspectRatio: false,
                 responsive: true,
                 plugins: {
                     legend: { position: 'bottom' }
@@ -118,7 +156,6 @@
 
         let heatMap = anychart.heatMap(
             [
-                {#{x: "Friday", y: "Week 6", heat: '' },#}
                 {% for week in weeks_names_for_heatmap %}
                     {% for weekday in day_names_for_heatmap %}
                         {x: "{{ weekday }}", y: "Week {{ week }}", heat: ''},

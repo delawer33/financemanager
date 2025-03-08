@@ -2,11 +2,12 @@ from django.shortcuts import render
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum
+from django.contrib.auth.decorators import login_required
 
 from transaction.models import Transaction
 from diagram.helpers import period_stats
 
-
+@login_required
 def dashboard(request):
     end_date = timezone.now().date()
     start_date = end_date - timedelta(days=30)

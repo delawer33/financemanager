@@ -1,4 +1,4 @@
-from django_filters import FilterSet, DateFromToRangeFilter, Filter, DateRangeFilter
+from django_filters import FilterSet, DateFromToRangeFilter, Filter, OrderingFilter
 from django_filters.widgets import RangeWidget
 from django.db.models import Q
 
@@ -26,6 +26,12 @@ class TransactionFilter(FilterSet):
     date = DateFromToRangeFilter(widget=RangeWidget(attrs={'type': 'date'}))
     description = DescriptionFilter()
     category = CategoryFilter()
+    sort_by = OrderingFilter(
+        fields=(
+            ('date', 'date'),
+            ('amount', 'amount')
+        )
+    )
 
     class Meta:
         model = Transaction
