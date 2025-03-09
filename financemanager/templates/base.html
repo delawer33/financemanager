@@ -9,42 +9,45 @@
     	    Base
         {% endblock %}
     </title>
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
 </head>
 <body>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <header style="border-bottom: 1px black solid; flex-direction: row">
-        Finance manager
-        {% if user.is_authenticated %}
-            <a href="{% url 'transaction:dashboard' %}">Dashboard</a>
-            <a href="{% url 'transaction:create-trans' %}">New transaction</a>
-            <a href="{% url 'transaction:trans-list' %}">History</a>
-            <a href="">Statistics</a>
+        <div class="header-content">
+            <h1 class="logo">
+                Finance Manager
+            </h1>
+            <nav class="nav">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard:dashboard' %}" class="nav-link">Dashboard</a>
+                    <a href="{% url 'transaction:create-trans' %}" class="nav-link">New transaction</a>
+                    <a href="{% url 'transaction:trans-list' %}" class="nav-link">History</a>
+                    <a href="{% url 'stats:stats' %}" class="nav-link">Statistics</a>
 
-            Hello, {% firstof user.firstname user.email %}!
+                    {% firstof user.firstname user.email %}
 
-            <form action="{% url 'authapp:logout' %}" method="POST">
-                {% csrf_token %}
-                <button>Logout</button>
-            </form>
-        {% else %}
-            <a href="{% url 'authapp:login' %}">LogIn</a>
-        {% endif %}
+                    <form action="{% url 'authapp:logout' %}" method="POST"  class="logout-form">
+                        {% csrf_token %}
+                        <button class="logout-button">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'authapp:login' %}" class="nav-link">LogIn</a>
+                    <a href="{% url 'authapp:register' %}" class="nav-link">Register</a>
+                {% endif %}
+            </nav>
+        </div>
     </header>
 
 
-    {% block body %}
+    <main class="main-content">
+        {% block body %}
 
-    {% endblock %}
+        {% endblock %}
+    </main>
 
     <script src="https://unpkg.com/htmx.org"></script>
-    <script>
-    // Автоматическая загрузка категорий при начальной загрузке
-    document.addEventListener('DOMContentLoaded', function() {
-        const typeSelect = document.getElementById('id_type');
-        if (typeSelect.value) {
-            htmx.trigger(typeSelect, 'change');
-        }
-    });
-    </script>
 </body>
 </html>

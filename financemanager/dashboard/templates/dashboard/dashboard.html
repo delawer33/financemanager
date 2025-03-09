@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	Dashboard
+{% endblock %}
+
+{% block body %}
+
+    <div class="metrics">
+        <div class="card">
+            <h3>Income</h3>
+            <p>{{ total_income }} $</p>
+        </div>
+        <div class="card">
+            <h3>Expense</h3>
+            <p>{{ total_expense }} $</p>
+        </div>
+        <div class="card">
+            <h3>Balance (income-expense)</h3>
+            <p>{{ balance }} $</p>
+        </div>
+    </div>
+
+    <div class="charts">
+        <div class="chart-container">
+            <canvas id="incomeExpenseChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="expenseDistributionChart"></canvas>
+        </div>
+    </div>
+
+     <script>
+        const incomeExpenseCtx = document.getElementById('incomeExpenseChart').getContext('2d');
+        new Chart(incomeExpenseCtx, {
+            type: 'line',
+            data: {
+                labels: {{ labels|safe }},
+                datasets: [
+                    {
+                        label: 'Income',
+                        data: {{ income_data|safe }},
+                        borderColor: '#4CAF50',
+                        fill: false
+                    },
+                    {
+                        label: 'Expense',
+                        data: {{ expense_data|safe }},
+                        borderColor: '#F44336',
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                devicePixelRatio: 2,
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { type: 'logarithmic', title: { display: true, text: 'Sum' } }
+                }
+            }
+        });
+
+        const expenseDistributionCtx = document.getElementById('expenseDistributionChart').getContext('2d');
+        new Chart(expenseDistributionCtx, {
+            type: 'polarArea',
+            data: {
+                labels: [{% for c in expense_categories %}{% if c.category__name %}"{{ c.category__name }}"{% else %}"Other"{% endif %}, {% endfor %}],
+                datasets: [{
+                    data: [{% for c in expense_categories %}
+                    {{ c.total }},
+                {% endfor %}],
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                        '#FF9F40', '#FFCD56', '#C9CBCF', '#4D5360', '#F7464A'
+                    ]
+                }]
+            },
+            options: {
+                devicePixelRatio: 2,
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    </script>
+
+{% endblock %}

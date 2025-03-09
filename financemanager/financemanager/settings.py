@@ -9,13 +9,13 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+import os
 from datetime import timedelta
 from pathlib import Path
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -46,6 +46,9 @@ INSTALLED_APPS = [
 
     'authapp.apps.AuthappConfig',
     'transaction.apps.TransactionConfig',
+    'diagram.apps.DiagramConfig',
+    'dashboard.apps.DashboardConfig',
+    'stats.apps.StatsConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -142,6 +145,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -150,10 +158,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'authapp.UserModel'
 
-LOGIN_REDIRECT_URL = "transaction:dashboard"
+LOGIN_REDIRECT_URL = "dashboard:dashboard"
 LOGOUT_REDIRECT_URL = "authapp:login"
 LOGIN_URL = "authapp:login"
 
-SESSION_COOKIE_SECURE = False  # Если сайт работает по HTTP, а не HTTPS
-SESSION_COOKIE_HTTPONLY = True  # Должно быть True для безопасности
-SESSION_SAVE_EVERY_REQUEST = True  # Опционально: обновляет сессию при каждом запросе
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_HTTPONLY = True
+SESSION_SAVE_EVERY_REQUEST = True

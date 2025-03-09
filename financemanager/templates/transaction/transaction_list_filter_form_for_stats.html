@@ -1,0 +1,15 @@
+{{ request.GET }}
+    <form method="GET" action="" id="filter-form">
+        <label for="id_type">Type</label>
+        <select name="type" id="id_type" hx-vals='{"category":"{{ request.GET.category }}"}' hx-trigger="load, change" hx-get="{% url 'transaction:get-categories-for-filter' %}" hx-target="#id_category">
+            <option value="Notype" {% if request.GET.type == 'Notype' %}selected{% endif %}>---------</option>
+            <option value="OUTCOME" {% if request.GET.type == 'OUTCOME' %}selected{% endif %}>Outcome</option>
+            <option value="INCOME" {% if request.GET.type == 'INCOME' %}selected{% endif %}>Income</option>
+        </select>
+        <label for="id_category">Category</label>
+        <select name="category" id="id_category">
+            {% include 'transaction/category_dropdown.html' %}
+        </select>
+
+        <button type="submit">Filter</button>
+    </form>

@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.views.generic.base import RedirectView
 from django.urls import path, include
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -24,10 +25,13 @@ from rest_framework_simplejwt.views import (
 from .views import index
 
 urlpatterns = [
-    path('', index, name='main'),
+    path('', RedirectView.as_view(url="manager/dashboard")),
     path('admin/', admin.site.urls),
     path('auth/', include('authapp.urls')),
-    path('transaction/', include('transaction.urls')),
+    path('manager/dashboard/', include('dashboard.urls')),
+    path('manager/', include('transaction.urls')),
+    path('manager/stats/', include('stats.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
+
