@@ -154,8 +154,7 @@ header {
 }
 
 .form-group select,
-.form-group input[type="date"],
-.form-group input[type="number"],
+.form-group input,
 .form-group textarea {
     width: 100%;
     padding: 0.75rem;
@@ -212,8 +211,10 @@ header {
     border-collapse: collapse;
     margin-top: 1rem;
 }
+
 .transaction-table th,
 .transaction-table td {
+    display: flex;
     padding: 0.75rem;
     text-align: left;
     border-bottom: 1px solid #e0e0e0;

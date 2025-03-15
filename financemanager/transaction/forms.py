@@ -16,7 +16,6 @@ class TransactionCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.fields['category'].initial =
         self.initial['category'] = Category.objects.filter(type="OUTCOME")
 
     def save(self, commit=True):
@@ -28,3 +27,17 @@ class TransactionCreateForm(forms.ModelForm):
     class Meta:
         model = Transaction
         fields = ('category', 'date', 'type', 'amount', 'description')
+    
+
+class CategoryForm(forms.ModelForm):
+
+    def save(self, commit=True):
+        category = super().save(commit=False)
+        if commit:
+            category.save()
+        return category
+    
+    class Meta:
+        model = Category
+        fields = ("type", "name")
+

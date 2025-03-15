@@ -15,6 +15,17 @@ class Category(models.Model):
         max_length=50
     )
 
+    user = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    is_system = models.BooleanField(
+        default=False
+    )
+
     type = models.CharField(
         "Type",
         max_length=20,
@@ -27,6 +38,7 @@ class Category(models.Model):
     
     class Meta:
         verbose_name_plural = "Categories"
+        unique_together = [['user', 'name']]
 
 
 class Transaction(models.Model):

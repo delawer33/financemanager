@@ -1,0 +1,24 @@
+<table class="transaction-table">
+    <thead>
+        <tr>
+            <th>Your categories</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cat in categories %}
+        <tr>
+            <td>{{ cat }}  
+                    {% if cat.user %}
+                        <span style="margin-left: auto;"
+                            hx-post="{% url 'transaction:category-delete' cat.pk %}" 
+                            hx-target="#category-list"
+                        >
+                            Delete
+                        </span>
+                    {% endif %}
+                
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
