@@ -46,7 +46,6 @@ INSTALLED_APPS = [
 
     'authapp.apps.AuthappConfig',
     'transaction.apps.TransactionConfig',
-    'diagram.apps.DiagramConfig',
     'dashboard.apps.DashboardConfig',
     'stats.apps.StatsConfig',
 ]
