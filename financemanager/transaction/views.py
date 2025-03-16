@@ -1,7 +1,6 @@
-from django.http import HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView, DeleteView
+from django.views.generic.edit import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from rest_framework import permissions, viewsets
@@ -81,12 +80,6 @@ class CategoryView(LoginRequiredMixin, CreateView):
         ctx['categories'] = categories
         return ctx
 
-
-# class CategoryDelete(LoginRequiredMixin, DeleteView):
-#     model = Category
-#     template_name = 'transaction/category_list.html'
-
-
 @login_required
 def category_delete(request, pk):
     cat = get_object_or_404(Category, id=pk)
@@ -105,16 +98,40 @@ def category_delete(request, pk):
 
 
 @login_required
+def transaction_delete(request, pk):
+    trans = get_object_or_404(Transaction, id=pk)
+    list_filter = TransactionFilter(
+        request.POST, 
+        queryset=Transaction.objects.filter(user=request.user).order_by("-date")
+    )
+    
+    if request.method == 'POST':
+        trans.delete()
+    return render(
+        request,
+        'transaction/transaction_list_part.html',
+        {
+            'list_filter': list_filter
+        }
+    )
+
+
+@login_required
 def transaction_list(request):
-    filter = TransactionFilter(request.GET, queryset=Transaction.objects.order_by("-date"))
+    filter = TransactionFilter(
+        request.GET, 
+        queryset=Transaction.objects.filter(user=request.user).order_by("-date")
+    )
     return render(request, 'transaction/transaction_list.html', {'filter': filter})
 
 
 @login_required
-def transaction_list_for_stats(request):
-    list_filter = TransactionFilter(request.GET, queryset=Transaction.objects.order_by("-date"))
-    return render(request, 'transaction/transaction_list_for_stats.html', {"list_filter": list_filter})
-
+def transaction_list_part(request):
+    list_filter = TransactionFilter(
+        request.GET, 
+        queryset=Transaction.objects.filter(user=request.user).order_by("-date")
+    )
+    return render(request, 'transaction/transaction_list_part.html', {"list_filter": list_filter})
 
 
 class TransactionViewset(viewsets.ModelViewSet):

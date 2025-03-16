@@ -10,6 +10,7 @@
         <select name="category" id="id_category">
             {% include 'transaction/category_dropdown.html' %}
         </select>
-
+        {{ form.errors }}
+        {{ form.non_field_errors }}
         <button type="submit">Filter</button>
     </form>

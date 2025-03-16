@@ -43,13 +43,13 @@
         </div>
 
         <div class="chart-container" style="width: 700px;">
-            <div id="heatMap"></div>
+            <div id="heatMap" style="height:100%"></div>
         </div>
     </div>
 
 
     <div class="filter-form">
-        <form method="GET" hx-trigger="load, change" hx-vals='{"date_min":"{{ request.GET.date_min }}"}' action="" id="filter-form" hx-get="{% url 'transaction:trans-list-for-stats' %}" hx-target="#transactionList">
+        <form method="GET" hx-trigger="load, change" hx-vals='{"date_min":"{{ request.GET.date_min }}"}' action="" id="filter-form" hx-get="{% url 'transaction:trans-list-part' %}" hx-target="#transaction-list">
             <label for="id_type">Type</label>
             <select name="type" id="id_type" hx-vals='{"category":"{{ request.GET.category }}"}' hx-trigger="load, change" hx-get="{% url 'transaction:get-categories-for-filter' %}" hx-target="#id_category">
                 <option value="Notype" {% if request.GET.type == 'Notype' %}selected{% endif %}>---------</option>
@@ -66,7 +66,7 @@
     
     </div>
 
-    <div id="transactionList">
+    <div id="transaction-list">
         {% comment %} {% include "transaction/transaction_list_for_stats.html" %} {% endcomment %}
     </div>
         
@@ -158,14 +158,14 @@
             [
                 {% for week in weeks_names_for_heatmap %}
                     {% for weekday in day_names_for_heatmap %}
-                        {x: "{{ weekday }}", y: "Week {{ week }}", heat: ''},
+                        {x: "{{ weekday }}", y: "{{ week }}", heat: ''},
                     {% endfor %}
                 {% endfor %}
 
                 {% for i in heatmap %}
                     {
                         x: "{{ i.x }}",
-                        y: "Week {{ i.y }}",
+                        y: "{{ i.y }}",
                         heat: {{ i.heat }},
                     },
                 {% endfor %}
@@ -175,7 +175,7 @@
         heatMap.title("Heatmap");
         heatMap.container('heatMap');
         heatMap.yScroller().enabled(true);
-        heatMap.yZoom().setToPointsCount(8);
+        heatMap.yZoom().setToPointsCount(5);
         heatMap.draw();
     </script>
 

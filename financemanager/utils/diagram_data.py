@@ -1,7 +1,6 @@
+from datetime import timedelta
 import pandas as pd
 from django.db.models import Sum, Count
-
-from transaction.models import Transaction, Category
 
 
 def period_stats(qs):
@@ -96,23 +95,36 @@ def get_data_for_heatmap(qs):
     ]
 
     if hm_data:
-
         df = pd.DataFrame(hm_data)
         df['weekday'] = pd.to_datetime(df['date']).dt.day_name()
         df['week'] = pd.to_datetime(df['date']).dt.isocalendar().week
-
-        heatmap_data = df.groupby(['weekday', 'week'])['amount'].sum().reset_index()
+        df['year'] = pd.to_datetime(df['date']).dt.isocalendar().year
+        heatmap_data = df.groupby(['year', 'week', 'weekday'])['amount'].sum().reset_index()
 
         heatmap_data['weekday_num'] = heatmap_data['weekday'].map(weekday_to_number)
-        heatmap_data = heatmap_data.sort_values(by=['week', 'weekday_num'])
-        heatmap_data['week'] = heatmap_data['week'].map(lambda x: x - (heatmap_data.iloc[0]['week'] - 1))
+        heatmap_data = heatmap_data.sort_values(by=['year', 'week', 'weekday_num'])
 
-        weeks_names_for_heatmap = list(map(int, heatmap_data['week'].unique()))
+        heatmap_data['monday_date'] = pd.to_datetime(
+            heatmap_data['year'].astype(str) + '-' + 
+            heatmap_data['week'].astype(str) + '-1', 
+            format='%Y-%W-%w'
+        )
+        heatmap_data['sunday_date'] = heatmap_data['monday_date'] + timedelta(days=6)
+
+        heatmap_data['week_label'] = heatmap_data.apply(
+            lambda row: 
+            f"{row['monday_date'].day}{row['monday_date'].month_name()[:3]}" + \
+            f"-{row['sunday_date'].day}{row['sunday_date'].month_name()[:3]}",
+            axis=1
+        )
+
+        weeks_names_for_heatmap = heatmap_data[['week', 'week_label']].drop_duplicates()
+        weeks_names_for_heatmap = weeks_names_for_heatmap['week_label'].to_list()
 
         heatmap_list = [
             {
                 'x': row['weekday'],
-                'y': f"{row['week']}",
+                'y': f"{row['week_label']}",
                 'heat': row['amount']
             }
             for _, row in heatmap_data.iterrows()
@@ -125,7 +137,6 @@ def get_data_for_heatmap(qs):
 
 
 def extended_period_stats(qs):
-    """Generates extended statistics for statistics page"""
     data = period_stats(qs)
     data.update(get_data_for_heatmap(qs))
     data.update(expense_frequency_data(qs))

@@ -1,0 +1,47 @@
+<table class="transaction-table">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th> </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transaction in list_filter.qs %}
+        <tr>
+            <td>{{ transaction.category }}</td>
+            <td class="amount">{{ transaction.amount }} {{ user.currency.symbol }}</td>
+            <td>{{ transaction.date }}</td>
+            <td 
+                class="description" 
+                title="{{ transaction.description }}"
+            >
+                {{ transaction.description|truncatechars:20 }}
+            </td>
+            <td>
+                <span style="margin-left: auto; cursor: pointer; line-height:27px"
+                    hx-post="{% url "transaction:trans-delete" transaction.pk %}"
+                    hx-target="#transaction-list"
+                    hx-vals='{
+                        "type":"{{ request.GET.type }}",
+                        "category":"{{ request.GET.category }}",
+                        "date_min":"{{ request.GET.date_min }}",
+                        "date_max":"{{ request.GET.date_max }}",
+                        "date_max":"{{ request.GET.date_max }}",
+                        "sort_by":"{{ request.GET.sort_by }}",
+                        "description":"{{ request.GET.description }}"
+                    }'
+                >
+                ✕
+                </span>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" style="text-align: center;">No transactions found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

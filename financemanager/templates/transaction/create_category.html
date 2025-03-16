@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-	New transaction
+	Categories
 {% endblock %}
 
 {% block body %}
@@ -20,6 +20,8 @@
             <label for="id_category">Name</label>
             <input name="name" id="id_category">
         </div>
+        {{ form.errors }}
+        {{ form.non_field_errors }}
         <button type="submit" class="submit-button">Submit</button>
     </form>
     

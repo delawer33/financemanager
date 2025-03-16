@@ -25,6 +25,7 @@
                     <a href="{% url 'dashboard:dashboard' %}" class="nav-link">Dashboard</a>
                     <a href="{% url 'transaction:create-trans' %}" class="nav-link">New transaction</a>
                     <a href="{% url 'transaction:trans-list' %}" class="nav-link">History</a>
+                    <a href="{% url 'transaction:category' %}" class="nav-link">Categories</a>
                     <a href="{% url 'stats:stats' %}" class="nav-link">Statistics</a>
 
                     {% firstof user.firstname user.email %}

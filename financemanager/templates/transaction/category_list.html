@@ -7,13 +7,13 @@
     <tbody>
         {% for cat in categories %}
         <tr>
-            <td>{{ cat }}  
+            <td style="display:flex">{{ cat }}  
                     {% if cat.user %}
-                        <span style="margin-left: auto;"
+                        <span style="margin-left: auto; cursor: pointer; line-height:27px"
                             hx-post="{% url 'transaction:category-delete' cat.pk %}" 
                             hx-target="#category-list"
                         >
-                            Delete
+                        ✕
                         </span>
                     {% endif %}
                 

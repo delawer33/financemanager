@@ -1,5 +1,12 @@
 <div class="filter-form">
-    <form method="GET" action="" id="filter-form">
+    <form 
+        method="GET" 
+        action="" 
+        id="filter-form" 
+        hx-trigger="load, submit"
+        hx-get="{% url "transaction:trans-list-part" %}"
+        hx-target="#transaction-list"
+        >
         <div class="form-group">
             <label for="id_type">Type</label>
             <select name="type" id="id_type" hx-vals='{"category":"{{ request.GET.category }}"}' hx-trigger="load, change" hx-get="{% url 'transaction:get-categories-for-filter' %}" hx-target="#id_category">
