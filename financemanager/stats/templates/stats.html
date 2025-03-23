@@ -6,9 +6,6 @@
 {% endblock %}
 
 {% block body %}
-
-    
-
     <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-core.min.js"></script>
     <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-heatmap.min.js"></script>
 
@@ -17,15 +14,15 @@
     <div class="metrics">
         <div class="card">
             <h3>Income</h3>
-            <p>{{ total_income }} $</p>
+            <p>{{ total_income }} {{ user.currency.symbol }}</p>
         </div>
         <div class="card">
             <h3>Expense</h3>
-            <p>{{ total_expense }} $</p>
+            <p>{{ total_expense }} {{ user.currency.symbol }}</p>
         </div>
         <div class="card">
             <h3>Balance (income-expense)</h3>
-            <p>{{ balance }} $</p>
+            <p>{{ balance }} {{ user.currency.symbol }}</p>
         </div>
     </div>
 
@@ -48,26 +45,36 @@
     </div>
 
 
-    <div class="filter-form">
-        <form method="GET" hx-trigger="load, change" hx-vals='{"date_min":"{{ request.GET.date_min }}"}' action="" id="filter-form" hx-get="{% url 'transaction:trans-list-part' %}" hx-target="#transaction-list">
-            <label for="id_type">Type</label>
-            <select name="type" id="id_type" hx-vals='{"category":"{{ request.GET.category }}"}' hx-trigger="load, change" hx-get="{% url 'transaction:get-categories-for-filter' %}" hx-target="#id_category">
-                <option value="Notype" {% if request.GET.type == 'Notype' %}selected{% endif %}>---------</option>
-                <option value="OUTCOME" {% if request.GET.type == 'OUTCOME' %}selected{% endif %}>Outcome</option>
-                <option value="INCOME" {% if request.GET.type == 'INCOME' %}selected{% endif %}>Income</option>
-            </select>
-            <label for="id_category">Category</label>
-            <select name="category" id="id_category">
-                {% include 'transaction/category_dropdown.html' %}
-            </select>
-            <label>Sort by</label>
-            {{ filter.form.sort_by }}
-        </form>
+    <div class="transaction-container">
+        <div class="filter-form">
+            <form 
+                method="GET" 
+                hx-trigger="load, change" 
+                hx-vals='{"date_min":"{{ request.GET.date_min }}",
+                        "date_max": "{{ request.GET.date_max }}"}' 
+                action="" id="filter-form" 
+                hx-get="{% url 'transaction:trans-list-part' %}" 
+                hx-target="#transaction-list"
+            >
+                <label for="id_type">Type</label>
+                <select name="type" id="id_type" hx-vals='{"category":"{{ request.GET.category }}"}' hx-trigger="load, change" hx-get="{% url 'transaction:get-categories-for-filter' %}" hx-target="#id_category">
+                    <option value="Notype" {% if request.GET.type == 'Notype' %}selected{% endif %}>---------</option>
+                    <option value="OUTCOME" {% if request.GET.type == 'OUTCOME' %}selected{% endif %}>Outcome</option>
+                    <option value="INCOME" {% if request.GET.type == 'INCOME' %}selected{% endif %}>Income</option>
+                </select>
+                <label for="id_category">Category</label>
+                <select name="category" id="id_category">
+                    {% include 'transaction/category_dropdown.html' %}
+                </select>
+                <label>Sort by</label>
+                {{ filter.form.sort_by }}
+            </form>
+        
+        </div>
     
-    </div>
-
-    <div id="transaction-list">
-        {% comment %} {% include "transaction/transaction_list_for_stats.html" %} {% endcomment %}
+        <div id="transaction-list">
+            {% comment %} {% include "transaction/transaction_list_for_stats.html" %} {% endcomment %}
+        </div>
     </div>
         
 

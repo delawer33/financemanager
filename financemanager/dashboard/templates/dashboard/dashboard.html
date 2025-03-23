@@ -9,15 +9,15 @@
     <div class="metrics">
         <div class="card">
             <h3>Income</h3>
-            <p>{{ total_income }} $</p>
+            <p>{{ total_income }} {{ user.currency.symbol }}</p>
         </div>
         <div class="card">
             <h3>Expense</h3>
-            <p>{{ total_expense }} $</p>
+            <p>{{ total_expense }} {{ user.currency.symbol }}</p>
         </div>
         <div class="card">
             <h3>Balance (income-expense)</h3>
-            <p>{{ balance }} $</p>
+            <p>{{ balance }} {{ user.currency.symbol }}</p>
         </div>
     </div>
 
