@@ -9,6 +9,13 @@ class Type(models.TextChoices):
     OUTCOME = "OUTCOME", "Outcome"
 
 
+class ReccuringTransactionFrequency(models.TextChoices):
+    DAILY = 'daily', 'Daily'
+    WEEKLY = 'weekly', 'Weekly'
+    MONTHLY = 'monthly', 'Monthly'
+    YEARLY = 'yearly', 'Yearly'
+
+
 class Category(models.Model):
     name = models.CharField(
         'Name',
@@ -93,3 +100,53 @@ class Transaction(models.Model):
                 f'type: {self.type}, '
                 f'category: {self.category}, '
                 f'date: {self.date}')
+
+
+class RecurringTransaction(models.Model):
+    user = models.ForeignKey(
+        get_user_model(), 
+        on_delete=models.CASCADE
+    )
+
+    amount = models.DecimalField(
+        max_digits=16,
+        decimal_places=2
+    )
+
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    type = models.CharField(
+        "Type",
+        max_length=20,
+        choices=Type.choices,
+        default=Type.OUTCOME
+    )
+
+    description = models.TextField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+
+    start_date = models.DateField(
+        default=timezone.now,
+    )
+    
+    end_date = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    frequency = models.CharField(
+        max_length=10,
+        choices=ReccuringTransactionFrequency.choices,
+        default=ReccuringTransactionFrequency.MONTHLY
+    )
+
+    def __str__(self):
+        return f'{self.amount}, {self.category}, {self.type}'

@@ -1,0 +1,56 @@
+<table class="transaction-table">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Category</th>
+            <th>Start date</th>
+            <th>End date</th>
+            <th>Amount</th>
+            <th>Frequency</th>
+            <th>Description</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in recur_transactions %}
+        <tr>
+            <td>
+                {{ t.type }}
+            </td>
+            <td>
+                {{ t.category }}
+            </td>
+            <td>
+                {{ t.start_date }}
+            </td>
+            <td>
+                {{ t.end_date }}
+            </td>
+            <td>
+                {{ t.amount }}
+            </td>
+            <td>
+                {{ t.frequency }}
+            </td>
+
+            <td title="{{ t.description }}">
+                
+                {{ t.description|truncatechars:20 }}  
+                
+            </td>
+            <td>
+                <span style="margin-left: auto; cursor: pointer; line-height:27px"
+                    hx-post="{% url 'transaction:recur-trans-delete' t.pk %}" 
+                    hx-target="#recur-trans-list"
+                >
+                ✕
+                </span>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" style="text-align: center;">No transactions found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

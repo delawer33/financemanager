@@ -7,8 +7,8 @@ from rest_framework import permissions, viewsets
 from django.db.models import Q
 
 from .filters import TransactionFilter
-from .forms import TransactionCreateForm, CategoryForm
-from .models import Transaction, Category
+from .forms import TransactionCreateForm, CategoryForm, RecuringTransactionForm
+from .models import Transaction, Category, RecurringTransaction
 from .serializers import TransactionSerializer
 
 
@@ -58,6 +58,26 @@ class TransactionCreate(LoginRequiredMixin, CreateView):
         trans = form.save(commit=False)
         trans.user = self.request.user
         return super().form_valid(form)
+
+
+class RecurringTransactionCreate(LoginRequiredMixin, CreateView):
+    model = RecurringTransaction
+    form_class = RecuringTransactionForm
+    template_name = 'transaction/create_recur_trans.html'
+    success_url = reverse_lazy('transaction:create-rec-trans')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['recur_transactions'] = RecurringTransaction.objects.filter(
+            user=self.request.user
+        )
+        ctx['recur_transactions'] = ctx['recur_transactions'].order_by('-id')
+        
+        return ctx
 
 
 class CategoryView(LoginRequiredMixin, CreateView):
@@ -112,6 +132,29 @@ def transaction_delete(request, pk):
         'transaction/transaction_list_part.html',
         {
             'list_filter': list_filter
+        }
+    )
+
+
+@login_required
+def recur_transaction_delete(request, pk):
+    rec_trans = get_object_or_404(RecurringTransaction, id=pk)
+    
+    if request.method == 'POST':
+        rec_trans.delete()
+    qs = RecurringTransaction.objects.filter(
+        user=request.user
+    ).order_by(
+        '-id'
+    )
+
+    print(qs)
+
+    return render(
+        request,
+        'transaction/recur_trans_list.html',
+        {
+            'recur_transactions': qs
         }
     )
 

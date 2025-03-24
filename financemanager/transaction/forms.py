@@ -1,10 +1,11 @@
 from django import forms
 from django.utils import timezone
 
-from .models import Transaction, Category
+from .models import Transaction, Category, RecurringTransaction
 
 
 class TransactionCreateForm(forms.ModelForm):
+
     date = forms.DateField(
         widget=forms.DateInput(
             attrs={
@@ -40,4 +41,29 @@ class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         fields = ("type", "name")
+
+
+class RecuringTransactionForm(forms.ModelForm):
+
+    start_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={
+                'type': 'date',
+                'value': timezone.now().date()
+            }
+        )
+    )
+
+    end_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={
+                'type': 'date',
+            }
+        ),
+        required=False
+    )
+
+    class Meta:
+        model = RecurringTransaction
+        fields = ['amount', 'type', 'category', 'description', 'start_date', 'end_date', 'frequency']
 
