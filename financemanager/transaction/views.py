@@ -1,3 +1,5 @@
+from csv import Error
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
@@ -85,12 +87,14 @@ class CategoryView(LoginRequiredMixin, CreateView):
     template_name = 'transaction/create_category.html'
     success_url = reverse_lazy('transaction:category')
 
-
     def form_valid(self, form):
         cat = form.save(commit=False)
         cat.user = self.request.user
-        print(cat)
-        return super().form_valid(form)
+        try:
+            return super().form_valid(form)
+        except IntegrityError:
+            form.errors['Name: '] = 'Category names can''t repeat'
+            return super().form_invalid(form)
     
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

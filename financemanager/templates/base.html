@@ -23,8 +23,16 @@
             <nav class="nav">
                 {% if user.is_authenticated %}
                     <a href="{% url 'dashboard:dashboard' %}" class="nav-link">Dashboard</a>
-                    <a href="{% url 'transaction:create-trans' %}" class="nav-link">New transaction</a>
-                    <a href="{% url 'transaction:trans-list' %}" class="nav-link">History</a>
+                    <div class="dropdown">
+                        <div onclick="dropdownShow()" class="dropdown-text">
+                            Transaction
+                        </div>
+                        <div id="dropdown-content" class="dropdown-content">
+                            <a href="{% url 'transaction:create-trans' %}" class="nav-link">New transaction</a>
+                            <a href="{% url 'transaction:create-rec-trans' %}" class="nav-link">New recurring transaction</a>
+                            <a href="{% url 'transaction:trans-list' %}" class="nav-link">History</a>
+                        </div>
+                    </div>
                     <a href="{% url 'transaction:category' %}" class="nav-link">Categories</a>
                     <a href="{% url 'stats:stats' %}" class="nav-link">Statistics</a>
 
@@ -50,5 +58,22 @@
     </main>
 
     <script src="https://unpkg.com/htmx.org"></script>
+    <script>
+        function dropdownShow() {
+            document.getElementById("dropdown-content").classList.toggle("show");
+        }
+        window.onclick = function(event) {
+            if (!event.target.matches(".dropdown-text")){
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                var i;
+                for (i = 0; i < dropdown.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains("show")) {
+                        openDropdown.classList.remove("show");
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 </html>
