@@ -4,69 +4,114 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        {% block title %}
-    	    Base
-        {% endblock %}
+        {% block title %}Finance Manager{% endblock %}
     </title>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static "css/style.css" %}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <header style="border-bottom: 1px black solid; flex-direction: row">
+    <header>
         <div class="header-content">
-            <h1 class="logo">
-                Finance Manager
-            </h1>
+            <h1 class="logo">Finance Manager</h1>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
             <nav class="nav">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'dashboard:dashboard' %}" class="nav-link">Dashboard</a>
+                    <a href="{% url 'dashboard:dashboard' %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
                     <div class="dropdown">
                         <div onclick="dropdownShow()" class="dropdown-text">
-                            Transaction
+                            <i class="fas fa-exchange-alt"></i> Transactions
                         </div>
                         <div id="dropdown-content" class="dropdown-content">
-                            <a href="{% url 'transaction:create-trans' %}" class="nav-link">New transaction</a>
-                            <a href="{% url 'transaction:create-rec-trans' %}" class="nav-link">New recurring transaction</a>
-                            <a href="{% url 'transaction:trans-list' %}" class="nav-link">History</a>
+                            <a href="{% url 'transaction:create-trans' %}" class="nav-link">
+                                <i class="fas fa-plus-circle"></i> New transaction
+                            </a>
+                            <a href="{% url 'transaction:create-rec-trans' %}" class="nav-link">
+                                <i class="fas fa-redo"></i> New recurring transaction
+                            </a>
+                            <a href="{% url 'transaction:trans-list' %}" class="nav-link">
+                                <i class="fas fa-history"></i> History
+                            </a>
                         </div>
                     </div>
-                    <a href="{% url 'transaction:category' %}" class="nav-link">Categories</a>
-                    <a href="{% url 'stats:stats' %}" class="nav-link">Statistics</a>
+                    <a href="{% url 'transaction:category' %}" class="nav-link">
+                        <i class="fas fa-tags"></i> Categories
+                    </a>
+                    <a href="{% url 'stats:stats' %}" class="nav-link">
+                        <i class="fas fa-chart-pie"></i> Statistics
+                    </a>
+                    
+                    <div class="user-greeting">
+                        <i class="fas fa-user-circle"></i> {% firstof user.firstname user.email %}
+                    </div>
 
-                    {% firstof user.firstname user.email %}
-
-                    <form action="{% url 'authapp:logout' %}" method="POST"  class="logout-form">
+                    <form action="{% url 'authapp:logout' %}" method="POST" class="logout-form">
                         {% csrf_token %}
-                        <button class="logout-button">Logout</button>
+                        <button class="logout-button">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
                     </form>
                 {% else %}
-                    <a href="{% url 'authapp:login' %}" class="nav-link">LogIn</a>
-                    <a href="{% url 'authapp:register' %}" class="nav-link">Register</a>
+                    <a href="{% url 'authapp:login' %}" class="nav-link btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="{% url 'authapp:register' %}" class="nav-link btn btn-outline">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
                 {% endif %}
             </nav>
         </div>
     </header>
 
-
     <main class="main-content">
         {% block body %}
-
         {% endblock %}
     </main>
 
+    <footer>
+        <div class="footer-content">
+            <p>&copy; {% now "Y" %} Finance Manager. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org"></script>
+    <!-- Custom Scripts -->
     <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
+            document.querySelector('.nav').classList.toggle('mobile-active');
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('fa-bars')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
         function dropdownShow() {
             document.getElementById("dropdown-content").classList.toggle("show");
         }
+        
         window.onclick = function(event) {
-            if (!event.target.matches(".dropdown-text")){
+            if (!event.target.matches(".dropdown-text")) {
                 var dropdowns = document.getElementsByClassName("dropdown-content");
-                var i;
-                for (i = 0; i < dropdown.length; i++) {
+                for (var i = 0; i < dropdowns.length; i++) {
                     var openDropdown = dropdowns[i];
                     if (openDropdown.classList.contains("show")) {
                         openDropdown.classList.remove("show");

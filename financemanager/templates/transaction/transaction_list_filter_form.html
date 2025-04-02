@@ -1,4 +1,4 @@
-<div class="filter-form">
+<div class="form-container">
     <form 
         method="GET" 
         action="" 
@@ -23,9 +23,14 @@
             </select>
         </div>
 
-        <div class="form-group" style="width: 100%;">
-            <label for="id_date">Date</label>
-            {{ filter.form.date }}
+        <div class="form-group">
+            <label for="id_date_min">From Date</label>
+            {{ filter.form.date_from }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_date_max">To Date</label>
+            {{ filter.form.date_to}}
         </div>
 
         <div class="form-group">
@@ -38,6 +43,6 @@
             {{ filter.form.description }}
         </div>
 
-        <button type="submit">Filter</button>
+        <button type="submit"><i class="fas fa-filter"></i> Filter</button>
     </form>
 </div>

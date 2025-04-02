@@ -5,9 +5,11 @@
 {% endblock %}
 
 {% block body %}
-    
+
+{% include 'transaction/transaction_list_filter_form.html' %}  
+
 <div class="transaction-container">
-    {% include 'transaction/transaction_list_filter_form.html' %}
+    
 
     <div id="transaction-list">
         

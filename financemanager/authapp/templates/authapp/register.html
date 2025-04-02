@@ -6,11 +6,36 @@
 
 {% block body %}
 
-	<div class="filter-form">
+	<div class="form-container">
         <form action="" method="POST">
             {% csrf_token %}
-            {{ form }}
-            <input type="submit">
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                {{ form.email }}
+            </div>
+            <div class="form-group">
+                <label for="id_firstname">First name(not requiered)</label>
+                {{ form.firstname }}
+            </div>
+            <div class="form-group">
+                <label for="id_lastname">Last name(not requiered)</label>
+                {{ form.lastname }}
+            </div>
+            <div class="form-group">
+                <label for="id_currency">Currency</label>
+                {{ form.currency }}
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                {{ form.password1 }}
+            </div>
+            <div class="form-group">
+                <label for="id_email">Confirm password</label>
+                {{ form.password2 }}
+            </div>
+            {{form.errors}}
+            {{form.non_field_errors}}
+            <button type="submit">Register</button>
         </form>
     </div>
 

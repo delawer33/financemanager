@@ -1,8 +1,17 @@
 <div class="filter-form">
     <form method="GET" action="" id="filter-form">
-        {{ filter.form.date }}
+        <div class="form-group">
+            <label for="id_date_min">From Date</label>
+            {{ filter.form.date_from }}
+        </div>
+        <div class="form-group">
+            <label for="id_date_max">To Date</label>
+            {{ filter.form.date_to }}
+        </div>
         {{ form.errors }}
         {{ form.non_field_errors }}
-        <button type="submit">Filter</button>
+        <button type="submit">
+            <i class="fas fa-calendar"></i> Apply Date Filter
+        </button>
     </form>
 </div>
