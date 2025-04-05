@@ -8,8 +8,7 @@
             <label for="id_date_max">To Date</label>
             {{ filter.form.date_to }}
         </div>
-        {{ form.errors }}
-        {{ form.non_field_errors }}
+        {% include 'includes/form_errors.html' %}
         <button type="submit">
             <i class="fas fa-calendar"></i> Apply Date Filter
         </button>

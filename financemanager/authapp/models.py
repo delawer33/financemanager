@@ -73,6 +73,11 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
         default=1
     )
 
+    is_active = models.BooleanField(
+        'Active',
+        default=True
+    )
+
     is_admin = models.BooleanField(
         'Admin',
         default=False

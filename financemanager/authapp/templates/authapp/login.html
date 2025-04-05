@@ -6,10 +6,23 @@
 
 {% block body %}
 
-	<div class="filter-form">
+	<div class="form-container">
         <form action="" method="POST">
             {% csrf_token %}
-            {{ form }}
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                {{ form.password }}
+                <div class="password-actions">
+                    <a href="{% url 'authapp:password_reset' %}" class="forgot-password-link">
+                        <i class="fas fa-key"></i> Forgot Password?
+                    </a>
+                </div>
+            </div>
+            {% include 'includes/form_errors.html' %}
             <button type="submit">Login</button>
         </form>
     </div>
