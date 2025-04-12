@@ -18,10 +18,6 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView
 from django.urls import path, include
 from django.conf import settings
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView
-)
 
 
 urlpatterns = [
@@ -31,8 +27,7 @@ urlpatterns = [
     path('manager/dashboard/', include('dashboard.urls')),
     path('manager/', include('transaction.urls')),
     path('manager/stats/', include('stats.urls')),
-    path('manager/api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('manager/api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/', include('api.urls')),
 ]
 
 if settings.DEBUG:

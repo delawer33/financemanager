@@ -17,7 +17,6 @@ def get_stats_cache_key(user_id):
 @receiver([post_delete, post_save], sender=Transaction)
 def invalidate_stats_cache(sender, instance, **kwargs):
     if hasattr(instance, 'user'):
-        print("!!!")
         cache.delete(get_stats_cache_key(instance.user.id))
 
 
@@ -32,7 +31,6 @@ def stats_view(request):
     )
     transactions = transaction_filter.qs
     if not data:
-        print("!!!")
         data = extended_period_stats(transactions)
         cache.set(cache_key, data, 60 * 60 * 24 * 7)
     context = {

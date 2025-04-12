@@ -1,17 +1,14 @@
-from csv import Error
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from rest_framework import permissions, viewsets
 from django.db.models import Q
 
 from .filters import TransactionFilter
 from .forms import TransactionCreateForm, CategoryForm, RecuringTransactionForm
 from .models import Transaction, Category, RecurringTransaction
-from .serializers import TransactionSerializer
 
 
 @login_required
@@ -180,16 +177,3 @@ def transaction_list_part(request):
     )
     return render(request, 'transaction/transaction_list_part.html', {"list_filter": list_filter})
 
-
-class TransactionViewset(viewsets.ModelViewSet):
-    http_method_names = ['get']
-    queryset = Transaction.objects.all()
-    serializer_class = TransactionSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        return Transaction.objects.filter(user=user).order_by('-id')
-
-    class Meta:
-        ordering = ['-id']

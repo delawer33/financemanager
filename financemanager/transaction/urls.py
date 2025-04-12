@@ -1,9 +1,7 @@
-from django.urls import path, include
+from django.urls import path
 from django.views.generic.base import RedirectView
-from rest_framework.routers import DefaultRouter
 
 from .views import (
-    dashboard,
     TransactionCreate,
     RecurringTransactionCreate,
     CategoryView,
@@ -12,16 +10,12 @@ from .views import (
     recur_transaction_delete,
     category_delete,
     transaction_list_part,
-    TransactionViewset,
     get_categories_by_type,
     get_categories_by_type_for_filter,
 )
 
 
 app_name = 'transaction'
-
-router = DefaultRouter()
-router.register('transactions', TransactionViewset)
 
 urlpatterns = [
     path('', RedirectView.as_view(url="dashboard"), name='dashboard'),
@@ -35,5 +29,4 @@ urlpatterns = [
     path('trans_list_part/', transaction_list_part, name='trans-list-part'),
     path('get_categories/', get_categories_by_type, name='get-categories'),
     path('get_categories_for_filter/', get_categories_by_type_for_filter, name='get-categories-for-filter'),
-    path('api/', include(router.urls)),
 ]

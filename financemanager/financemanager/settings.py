@@ -45,11 +45,14 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_filters',
     'debug_toolbar',
+    'drf_spectacular',
+    'django_extensions',
 
     'authapp.apps.AuthappConfig',
     'transaction.apps.TransactionConfig',
     'dashboard.apps.DashboardConfig',
     'stats.apps.StatsConfig',
+    'api.apps.ApiConfig'
 ]
 
 REST_FRAMEWORK = {
@@ -58,9 +61,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated'
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'PAGE_SIZE': 10,
 }
 
