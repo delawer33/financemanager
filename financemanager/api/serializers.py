@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
@@ -12,9 +13,14 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):    
+    def create(self, validated_data):
+        validated_data['is_system'] = False
+        return super().create(validated_data)
+
     class Meta:
         model = Category
         fields = ('id', 'name', 'type', 'is_system')
+        read_only_fields = ('is_system',)
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):

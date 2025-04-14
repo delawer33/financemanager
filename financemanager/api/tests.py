@@ -47,10 +47,9 @@ class CategoryAPITests(APITestCase):
             name='Food for dogs',
             user=self.user1
         )
-
         self.category_user2 = Category.objects.create(
             name='Food for cats',
-            user=self.user1
+            user=self.user2
         )
         self.transaction_with_system_category1 = Transaction.objects.create(
             amount=1000,
@@ -97,3 +96,71 @@ class CategoryAPITests(APITestCase):
         self.authenticate_user1()
         response = self.client.get(self.category_list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data.get('results')), 3)
+    
+    def test_get_category_detail_not_authenticated(self):
+        response = self.client.get(self.category1_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_get_category_detail_authenticated(self):
+        self.authenticate_user1()
+
+        # get system category and category of this user
+        response = self.client.get(self.category1_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('id'), self.category1.id)
+        
+        response = self.client.get(self.category_user1_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('id'), self.category_user1.id)
+
+        # get category of other user
+        self.authenticate_user2()
+        response = self.client.get(self.category_user1_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_create_category_not_authenticated(self):
+        response = self.client.post(self.category_list_url, data={
+            'name': 'Test Category',
+            'type': 'INCOME'
+        })
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_create_category_authenticated(self):
+        self.authenticate_user1()
+        response = self.client.post(self.category_list_url, data={
+            'name': 'Test Category',
+            'type': 'INCOME'
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data.get('name'), 'Test Category')
+        self.assertEqual(response.data.get('type'), 'INCOME')
+        self.assertEqual(response.data.get('is_system'), False)
+        
+        # try to create category with same name
+        response = self.client.post(self.category_list_url, data={
+            'name': 'Test Category',
+            'type': 'INCOME'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_delete_category_not_authenticated(self):
+        response = self.client.delete(self.category_user1_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+    def test_delete_category_authenticated(self):
+        self.authenticate_user1()
+
+        # delete user category
+        response = self.client.delete(self.category_user1_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # delete system category
+        response = self.client.delete(self.category1_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # delete another user category
+        response = self.client.delete(self.category_user2_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    

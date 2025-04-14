@@ -65,7 +65,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 50,
 }
 
 SIMPLE_JWT = {

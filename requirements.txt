@@ -1,5 +1,6 @@
 amqp==5.3.1
 asgiref==3.8.1
+attrs==25.3.0
 billiard==4.2.1
 celery==5.4.0
 click==8.1.8
@@ -7,9 +8,15 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.3.0
 Django==5.1.6
+django-debug-toolbar==5.1.0
+django-extensions==4.1
 django-filter==24.3
 djangorestframework==3.15.2
 djangorestframework_simplejwt==5.4.0
+drf-spectacular==0.28.0
+inflection==0.5.1
+jsonschema==4.23.0
+jsonschema-specifications==2024.10.1
 kombu==5.5.0
 numpy==2.2.3
 pandas==2.2.3
@@ -18,9 +25,14 @@ PyJWT==2.10.1
 python-dateutil==2.9.0.post0
 python-decouple==3.8
 pytz==2025.1
+PyYAML==6.0.2
 redis==5.2.1
+referencing==0.36.2
+rpds-py==0.24.0
 six==1.17.0
 sqlparse==0.5.3
+typing_extensions==4.13.1
 tzdata==2025.1
+uritemplate==4.1.1
 vine==5.1.0
 wcwidth==0.2.13

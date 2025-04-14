@@ -87,11 +87,8 @@ class CategoryView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         cat = form.save(commit=False)
         cat.user = self.request.user
-        try:
-            return super().form_valid(form)
-        except IntegrityError:
-            form.errors['Name: '] = 'Category names can''t repeat'
-            return super().form_invalid(form)
+        return super().form_valid(form)
+        
     
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -107,7 +104,7 @@ def category_delete(request, pk):
     categories = Category.objects.filter(
         Q(is_system=True) | Q(user=request.user)
     )
-    if request.method == 'POST':
+    if request.method == 'POST' and cat.user == request.user:
         cat.delete()
     return render(
         request,
@@ -126,7 +123,7 @@ def transaction_delete(request, pk):
         queryset=Transaction.objects.filter(user=request.user).order_by("-date")
     )
     
-    if request.method == 'POST':
+    if request.method == 'POST' and trans.user == request.user:
         trans.delete()
     return render(
         request,
@@ -140,16 +137,13 @@ def transaction_delete(request, pk):
 @login_required
 def recur_transaction_delete(request, pk):
     rec_trans = get_object_or_404(RecurringTransaction, id=pk)
-    
-    if request.method == 'POST':
+    if request.method == 'POST' and rec_trans.user == request.user:
         rec_trans.delete()
     qs = RecurringTransaction.objects.filter(
         user=request.user
     ).order_by(
         '-id'
     )
-
-    print(qs)
 
     return render(
         request,
