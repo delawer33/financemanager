@@ -1,12 +1,9 @@
-from django.db import IntegrityError
-from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, generics
 from rest_framework.permissions import AllowAny
 from django.db.models import Q
-from rest_framework import status
-from rest_framework.response import Response
 
 from transaction.models import Transaction, Category
+from transaction.permissions import CategoryPermission
 from .serializers import (
     TransactionSerializer, 
     CategorySerializer,
@@ -31,21 +28,10 @@ class TransactionViewset(viewsets.ModelViewSet):
 class CategoryViewset(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'delete']
     serializer_class = CategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        cat = get_object_or_404(Category, id=kwargs.get('pk'))
-        if cat.user != request.user:
-            return Response(
-                status=status.HTTP_403_FORBIDDEN,
-                data={
-                    "message": "You are not allowed to delete system categories"
-                }
-            )
-        return super().destroy(request, *args, **kwargs)
+    permission_classes = [
+        permissions.IsAuthenticated,
+        CategoryPermission
+    ]
 
     def get_queryset(self):
         return Category.objects.filter(

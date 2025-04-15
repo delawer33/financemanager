@@ -20,7 +20,7 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name', 'type', 'is_system')
-        read_only_fields = ('is_system',)
+        # read_only_fields = ('is_system',)
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
