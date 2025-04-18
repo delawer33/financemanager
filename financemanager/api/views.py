@@ -19,10 +19,7 @@ class TransactionViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Transaction.objects.filter(user=user).order_by('-id')
-
-    class Meta:
-        ordering = ['-id']
+        return Transaction.objects.filter(user=user)
 
 
 class CategoryViewset(viewsets.ModelViewSet):

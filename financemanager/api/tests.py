@@ -161,6 +161,6 @@ class CategoryAPITests(APITestCase):
 
         # delete another user category
         response = self.client.delete(self.category_user2_detail_url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND2)
     
     

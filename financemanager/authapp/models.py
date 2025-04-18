@@ -29,6 +29,7 @@ class UserManager(BaseUserManager):
         )
         user.set_password(password)
         user.is_admin = True
+        user.is_superuser = True
         user.save()
         return user
 
@@ -92,11 +93,7 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_staff(self):
-        return self.is_admin
-    
-    @property
-    def is_superuser(self):
-        return self.is_admin
+        return self.is_superuser
 
     def get_full_name(self):
         return self.email
