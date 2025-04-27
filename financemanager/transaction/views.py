@@ -33,6 +33,7 @@ def get_categories_by_type_for_filter(request):
         categories = Category.objects.filter(type=transaction_type)
     else:
         categories = Category.objects.all()
+    
     return render(
         request,
         'transaction/category_dropdown_for_filter.html',
@@ -87,9 +88,12 @@ class CategoryView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         cat = form.save(commit=False)
         cat.user = self.request.user
-        return super().form_valid(form)
+        try:
+            return super().form_valid(form)
+        except IntegrityError as ie:
+            form.add_error('name', "Category names can't repeat")
+            return self.form_invalid(form)
         
-    
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         categories = Category.objects.filter(

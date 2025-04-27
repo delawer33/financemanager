@@ -39,6 +39,6 @@ def stats_view(request):
     context.update(data)
 
     return render(request,
-                  'stats.html',
+                  'stats/stats.html',
                   context=context)
 

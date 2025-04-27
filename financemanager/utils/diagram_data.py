@@ -140,5 +140,4 @@ def extended_period_stats(qs):
     data = period_stats(qs)
     data.update(get_data_for_heatmap(qs))
     data.update(expense_frequency_data(qs))
-
     return data

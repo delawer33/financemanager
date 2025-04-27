@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}
 	Statistics
@@ -13,7 +14,7 @@
 
     <div class="metrics">
         <div class="card">
-            <h3>Income</h3>
+            <h3>{% trans "Income" %}</h3>
             <p class="income">{{ total_income }} {{ user.currency.symbol }}</p>
         </div>
         <div class="card">
@@ -33,13 +34,6 @@
                 <canvas id="incomeExpenseChart"></canvas>
             </div>
         </div>
-
-        <!-- <div class="chart-container">
-            <h3>Expense Distribution</h3>
-            <div>
-                <canvas id="expenseDistributionChart"></canvas>
-            </div>
-        </div> -->
 
         <div class="chart-container">
             <h3>Expense Categories Frequency</h3>
@@ -130,31 +124,6 @@
             }
         });
 
-        // const expenseDistributionCtx = document.getElementById('expenseDistributionChart').getContext('2d');
-        // new Chart(expenseDistributionCtx, {
-        //     type: 'polarArea',
-        //     data: {
-        //         labels: [{% for c in expense_categories %}{% if c.category__name %}"{{ c.category__name }}"{% else %}"Other"{% endif %}, {% endfor %}],
-        //         datasets: [{
-        //             data: [{% for c in expense_categories %}
-        //             {{ c.total }},
-        //         {% endfor %}],
-        //             backgroundColor: [
-        //                 '#4f46e5', '#0ea5e9', '#10b981', '#ef4444', '#f59e0b',
-        //                 '#6366f1', '#8b5cf6', '#ec4899', '#14b8a6', '#f43f5e'
-        //             ]
-        //         }]
-        //     },
-        //     options: {
-        //         devicePixelRatio: 2,
-        //         maintainAspectRatio: false,
-        //         responsive: true,
-        //         plugins: {
-        //             legend: { position: 'bottom' }
-        //         }
-        //     }
-        // });
-        
         const expenseCateoriesFreqChart = document.getElementById('expenseCateoriesFreqChart').getContext('2d');
         new Chart(expenseCateoriesFreqChart, {
             type: 'doughnut',
@@ -192,7 +161,7 @@
                     {
                         x: "{{ i.x }}",
                         y: "{{ i.y }}",
-                        heat: {{ i.heat }},
+                        heat: {{ i.heat|stringformat:".2f" }},
                     },
                 {% endfor %}
 

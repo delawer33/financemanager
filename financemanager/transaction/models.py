@@ -20,8 +20,7 @@ class ReccuringTransactionFrequency(models.TextChoices):
 class Category(models.Model):
     name = models.CharField(
         'Name',
-        max_length=50,
-        unique=True
+        max_length=50
     )
 
     user = models.ForeignKey(
@@ -46,6 +45,7 @@ class Category(models.Model):
         return self.name
     
     class Meta:
+        unique_together = (('name', 'user'),)
         verbose_name_plural = "Categories"
 
 
