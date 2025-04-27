@@ -6,5 +6,3 @@
 - запустить сервер (python3 manage.py runserver)
 - если нужно, чтобы работали регулярные транзакции, тогда параллельно запустить celery `celery -A financemanager worker --loglevel=info | celery -A financemanager beat --loglevel=info` (для linux) (также должен быть установлен `redis`)
 
-На данный момент на сайте доступна авторизация, управление транзакциями и категориями, страница dashboard и страница статистики, последняя рабочая версия в ветке main.
-
