@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{% static "css/style.css" %}">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2769/2769524.png" type="image/x-icon">
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <header>
@@ -31,11 +32,12 @@
                     <a href="{% url 'dashboard:dashboard' %}" class="nav-link">
                         <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
+
                     <div class="dropdown">
-                        <div onclick="dropdownShow()" class="dropdown-text">
+                        <div onclick="dropdownShow('dropdown-content-transactions')" class="dropdown-text" tabindex="0">
                             <i class="fas fa-exchange-alt"></i> Transactions
                         </div>
-                        <div id="dropdown-content" class="dropdown-content">
+                        <div id="dropdown-content-transactions" class="dropdown-content" tabindex="-1">
                             <a href="{% url 'transaction:create-trans' %}" class="nav-link">
                                 <i class="fas fa-plus-circle"></i> New transaction
                             </a>
@@ -47,6 +49,35 @@
                             </a>
                         </div>
                     </div>
+                    
+                    <div class="dropdown">
+                        <div onclick="dropdownShow('dropdown-content-accounts')" class="dropdown-text" tabindex="0">
+                            <i class="fas fa-university"></i> Accounts
+                        </div>
+                        <div id="dropdown-content-accounts" class="dropdown-content" tabindex="-1">
+                            <a href="{% url 'transaction:account-create' %}" class="nav-link">
+                                <i class="fas fa-plus-circle"></i> Create Account
+                            </a>
+                            <a href="{% url 'transaction:account-list' %}" class="nav-link">
+                                <i class="fas fa-list"></i> My Accounts
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="dropdown">
+                        <div onclick="dropdownShow('dropdown-content-budget')" class="dropdown-text" tabindex="0">
+                            <i class="fas fa-wallet"></i> Budget
+                        </div>
+                        <div id="dropdown-content-budget" class="dropdown-content" tabindex="-1">
+                            <a href="{% url 'transaction:budget-create' %}" class="nav-link">
+                                <i class="fas fa-plus-circle"></i> Create Budget
+                            </a>
+                            <a href="{% url 'transaction:budget-list' %}" class="nav-link">
+                                <i class="fas fa-list"></i> My Budgets
+                            </a>
+                        </div>
+                    </div>
+
                     <a href="{% url 'transaction:category' %}" class="nav-link">
                         <i class="fas fa-tags"></i> Categories
                     </a>
@@ -104,8 +135,8 @@
             }
         });
 
-        function dropdownShow() {
-            document.getElementById("dropdown-content").classList.toggle("show");
+        function dropdownShow(id) {
+            document.getElementById(id).classList.toggle("show");
         }
         
         window.onclick = function(event) {

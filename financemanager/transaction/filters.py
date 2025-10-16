@@ -1,9 +1,9 @@
-from django_filters import DateFilter, FilterSet, Filter, OrderingFilter
+from django_filters import DateFilter, FilterSet, Filter, OrderingFilter, ModelChoiceFilter
 from django_filters.widgets import RangeWidget
 from django.forms import DateInput
 from django.db.models import Q
 
-from .models import Transaction
+from .models import Transaction, Account
 
 
 class DescriptionFilter(Filter):
@@ -25,6 +25,14 @@ class CategoryFilter(Filter):
 
 class TransactionFilter(FilterSet):
     # date = DateFromToRangeFilter(widget=RangeWidget(attrs={'type': 'date'}))
+    account = ModelChoiceFilter(
+        queryset=Account.objects.none(),  # будет обновлено динамически
+        label='Account',
+        empty_label='---------',
+        field_name='account',
+        lookup_expr='exact'
+    )
+
     date_from = DateFilter(
         field_name='date', 
         lookup_expr='gte', 
@@ -44,6 +52,13 @@ class TransactionFilter(FilterSet):
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.filters['account'].queryset = Account.objects.filter(user=user, is_active=True)
+
+
     class Meta:
         model = Transaction
-        fields = ('type',)
+        fields = ['type', 'category', 'account', 'date_from', 'date_to', 'sort_by', 'description']

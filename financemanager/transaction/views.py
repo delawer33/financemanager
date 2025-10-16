@@ -1,30 +1,382 @@
 from django.db import IntegrityError
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Sum
+from django.contrib import messages
+from django.http import JsonResponse
+from django.utils import timezone
+from datetime import datetime, timedelta
+from decimal import Decimal
 
 from .filters import TransactionFilter
-from .forms import TransactionCreateForm, CategoryForm, RecuringTransactionForm
-from .models import Transaction, Category, RecurringTransaction
+from .forms import (
+    TransactionCreateForm, CategoryForm, RecuringTransactionForm,
+    AccountForm, BudgetForm, BudgetCategoryLimitFormSet
+)
+from .models import (
+    Transaction, Category, RecurringTransaction, 
+    Account, Budget, BudgetCategoryLimit, Type
+)
+
+
+# ========== DASHBOARD ==========
+@login_required
+def dashboard(request):
+    """Обновленный дашборд с информацией о счетах и бюджетах"""
+    # Общая статистика
+    accounts = Account.objects.filter(user=request.user, is_active=True)
+    total_balance = accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
+    
+    # Текущий активный бюджет
+    current_budget = Budget.objects.filter(
+        user=request.user,
+        is_active=True,
+        start_date__lte=timezone.now().date(),
+        end_date__gte=timezone.now().date()
+    ).first()
+    
+    # Последние транзакции
+    recent_transactions = Transaction.objects.filter(
+        user=request.user
+    ).select_related('category', 'account').order_by('-date')[:5]
+    
+    context = {
+        'accounts': accounts,
+        'total_balance': total_balance,
+        'current_budget': current_budget,
+        'recent_transactions': recent_transactions,
+    }
+    
+    if current_budget:
+        context.update({
+            'budget_spent': current_budget.get_spent_amount(),
+            'budget_income': current_budget.get_income_amount(),
+            'budget_remaining': current_budget.get_remaining_budget(),
+        })
+    
+    return render(request, 'transaction/dashboard.html', context)
+
+
+# ========== ACCOUNTS ==========
+class AccountListView(LoginRequiredMixin, ListView):
+    """Список счетов пользователя"""
+    model = Account
+    template_name = 'transaction/account_list.html'
+    context_object_name = 'accounts'
+    
+    def get_queryset(self):
+        return Account.objects.filter(user=self.request.user).order_by('name')
+
+
+class AccountCreateView(LoginRequiredMixin, CreateView):
+    """Создание нового счета"""
+    model = Account
+    form_class = AccountForm
+    template_name = 'transaction/account_form.html'
+    success_url = reverse_lazy('transaction:account-list')
+    
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.balance = form.instance.initial_balance
+        messages.success(self.request, 'Account created successfully!')
+        return super().form_valid(form)
+
+
+class AccountUpdateView(LoginRequiredMixin, UpdateView):
+    """Редактирование счета"""
+    model = Account
+    form_class = AccountForm
+    template_name = 'transaction/account_form.html'
+    success_url = reverse_lazy('transaction:account-list')
+    
+    def get_queryset(self):
+        return Account.objects.filter(user=self.request.user)
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Account updated successfully!')
+        return super().form_valid(form)
+
+
+class AccountDetailView(LoginRequiredMixin, DetailView):
+    """Детальная информация о счете с транзакциями"""
+    model = Account
+    template_name = 'transaction/account_detail.html'
+    context_object_name = 'account'
+    
+    def get_queryset(self):
+        return Account.objects.filter(user=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        account = self.get_object()
+        
+        # Транзакции по этому счету
+        transactions = Transaction.objects.filter(
+            account=account
+        ).select_related('category').order_by('-date')
+        
+        # Фильтрация транзакций
+        filter = TransactionFilter(self.request.GET, queryset=transactions)
+        
+        context.update({
+            'transactions': filter.qs,
+            'filter': filter,
+            'income_total': transactions.filter(type=Type.INCOME).aggregate(
+                Sum('amount'))['amount__sum'] or Decimal('0'),
+            'outcome_total': transactions.filter(type=Type.OUTCOME).aggregate(
+                Sum('amount'))['amount__sum'] or Decimal('0'),
+        })
+        
+        return context
 
 
 @login_required
-def dashboard(request):
-    return render(request, 'transaction/dashboard.html')
+def account_delete(request, pk):
+    """Удаление счета (с проверкой на наличие транзакций)"""
+    account = get_object_or_404(Account, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        # Проверяем, есть ли связанные транзакции
+        transaction_count = Transaction.objects.filter(account=account).count()
+        
+        if transaction_count > 0:
+            messages.error(
+                request, 
+                f'Cannot delete account "{account.name}". '
+                f'It has {transaction_count} associated transactions.'
+            )
+        else:
+            account.delete()
+            messages.success(request, f'Account "{account.name}" deleted successfully!')
+    
+    return redirect('transaction:account-list')
 
 
+# ========== BUDGETS ==========
+class BudgetListView(LoginRequiredMixin, ListView):
+    """Список бюджетов пользователя"""
+    model = Budget
+    template_name = 'transaction/budget_list.html'
+    context_object_name = 'budgets'
+    
+    def get_queryset(self):
+        return Budget.objects.filter(user=self.request.user).order_by('-start_date')
+
+
+class BudgetCreateView(LoginRequiredMixin, CreateView):
+    """Создание нового бюджета"""
+    model = Budget
+    form_class = BudgetForm
+    template_name = 'transaction/budget_form.html'
+    success_url = reverse_lazy('transaction:budget-list')
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['name'] = self.request.GET.get('name', '')
+        initial['period_type'] = self.request.GET.get('period_type', '')
+        initial['total_expense_limit'] = self.request.GET.get('total_expense_limit', '')
+        return initial
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.method == 'POST':
+            context['category_limits'] = BudgetCategoryLimitFormSet(self.request.POST)
+        else:
+            context['category_limits'] = BudgetCategoryLimitFormSet()
+        # Добавляем категории для формы динамического добавления
+        context['categories'] = Category.objects.filter(
+            Q(is_system=True) | Q(user=self.request.user)
+        ).order_by('name')
+        return context
+    
+    def form_valid(self, form):
+        context = self.get_context_data()
+        category_limits = context['category_limits']
+        print(category_limits.errors)
+        form.instance.user = self.request.user
+        
+        if category_limits.is_valid():
+            self.object = form.save()
+            category_limits.instance = self.object
+            category_limits.save()
+            messages.success(self.request, 'Budget created successfully!')
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(context)
+
+
+class BudgetDetailView(LoginRequiredMixin, DetailView):
+    """Детальная информация о бюджете с прогрессом"""
+    model = Budget
+    template_name = 'transaction/budget_detail.html'
+    context_object_name = 'budget'
+    
+    def get_queryset(self):
+        return Budget.objects.filter(user=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        budget = self.get_object()
+        
+        # Статистика по бюджету
+        spent_amount = budget.get_spent_amount()
+        income_amount = budget.get_income_amount()
+        remaining_budget = budget.get_remaining_budget()
+        
+        # Прогресс по категориям
+        category_limits = BudgetCategoryLimit.objects.filter(budget=budget)
+        category_progress = []
+        
+        for limit in category_limits:
+            spent = limit.get_spent_amount()
+            remaining = limit.get_remaining_limit()
+            percentage = (spent / limit.limit_amount * 100) if limit.limit_amount > 0 else 0
+            
+            category_progress.append({
+                'limit': limit,
+                'spent': spent,
+                'remaining': remaining,
+                'percentage': min(percentage, 100),
+                'over_budget': spent > limit.limit_amount,
+            })
+        
+        # Транзакции в период бюджета
+        transactions = Transaction.objects.filter(
+            user=self.request.user,
+            date__range=[budget.start_date, budget.end_date]
+        ).select_related('category', 'account').order_by('-date')
+        
+        context.update({
+            'spent_amount': spent_amount,
+            'income_amount': income_amount,
+            'remaining_budget': remaining_budget,
+            'category_progress': category_progress,
+            'transactions': transactions,
+            'budget_percentage': (spent_amount / budget.total_expense_limit * 100) 
+                               if budget.total_expense_limit and budget.total_expense_limit > 0 else 0,
+        })
+        
+        return context
+
+
+@login_required
+def budget_delete(request, pk):
+    """Удаление бюджета"""
+    budget = get_object_or_404(Budget, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        budget.delete()
+        messages.success(request, f'Budget "{budget.name}" deleted successfully!')
+    
+    return redirect('transaction:budget-list')
+
+
+# ========== ПЕРЕПИСАННЫЕ СУЩЕСТВУЮЩИЕ VIEW ==========
+
+class TransactionCreate(LoginRequiredMixin, CreateView):
+    """Обновленное создание транзакции с поддержкой счетов"""
+    form_class = TransactionCreateForm
+    template_name = 'transaction/createtransaction.html'
+    success_url = reverse_lazy('transaction:create-trans')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Фильтруем категории
+        form.fields['category'].queryset = Category.objects.filter(
+            Q(is_system=True) | Q(user=self.request.user)
+        )
+        # Фильтруем счета пользователя
+        form.fields['account'].queryset = Account.objects.filter(
+            user=self.request.user, is_active=True
+        )
+        return form
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        messages.success(self.request, 'Transaction created successfully!')
+        return super().form_valid(form)
+
+
+@login_required
+def transaction_delete(request, pk):
+    """Обновленное удаление транзакции с обновлением баланса счета"""
+    trans = get_object_or_404(Transaction, id=pk, user=request.user)
+    
+    if request.method == 'POST':
+        account = trans.account  # Запоминаем счет для обновления баланса
+        trans.delete()
+        
+        # Обновляем баланс счета после удаления транзакции
+        if account:
+            account.update_balance()
+        
+        messages.success(request, 'Transaction deleted successfully!')
+    
+    # Возвращаем обновленный список транзакций
+    list_filter = TransactionFilter(
+        request.GET, 
+        queryset=Transaction.objects.filter(user=request.user).order_by("-date")
+    )
+    
+    return render(
+        request,
+        'transaction/transaction_list_part.html',
+        {'list_filter': list_filter}
+    )
+
+
+@login_required
 def get_categories_by_type(request):
+    """Обновлено для AJAX-запросов фильтрации категорий"""
     transaction_type = request.GET.get('type')
-    categories = Category.objects.filter(type=transaction_type)
+    user_categories = Category.objects.filter(
+        Q(type=transaction_type) & (Q(is_system=True) | Q(user=request.user))
+    )
     return render(
         request,
         'transaction/category_dropdown.html',
-        {'categories': categories}
+        {'categories': user_categories}
     )
 
+
+# ========== AJAX/API ENDPOINTS ==========
+@login_required
+def get_account_balance(request, account_id):
+    """API endpoint для получения баланса счета"""
+    try:
+        account = Account.objects.get(id=account_id, user=request.user)
+        return JsonResponse({
+            'balance': float(account.balance),
+            'currency': account.currency,
+        })
+    except Account.DoesNotExist:
+        return JsonResponse({'error': 'Account not found'}, status=404)
+
+
+@login_required
+def budget_progress_api(request, budget_id):
+    """API endpoint для получения прогресса бюджета"""
+    try:
+        budget = Budget.objects.get(id=budget_id, user=request.user)
+        
+        data = {
+            'spent': float(budget.get_spent_amount()),
+            'income': float(budget.get_income_amount()),
+            'remaining': float(budget.get_remaining_budget() or 0),
+            'total_limit': float(budget.total_expense_limit or 0),
+        }
+        
+        return JsonResponse(data)
+    except Budget.DoesNotExist:
+        return JsonResponse({'error': 'Budget not found'}, status=404)
+
+
+# ========== СОХРАНЕННЫЕ СУЩЕСТВУЮЩИЕ VIEW БЕЗ ИЗМЕНЕНИЙ ==========
 
 def get_categories_by_type_for_filter(request):
     transaction_type = request.GET.get('type')
@@ -37,27 +389,8 @@ def get_categories_by_type_for_filter(request):
     return render(
         request,
         'transaction/category_dropdown_for_filter.html',
-        {'categories': categories,
-         'cur_category': cur_category}
-    ) 
-
-
-class TransactionCreate(LoginRequiredMixin, CreateView):
-    form_class = TransactionCreateForm
-    template_name = 'transaction/createtransaction.html'
-    success_url = reverse_lazy('transaction:create-trans')
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        form.fields['category'].queryset = Category.objects.filter(
-            Q(is_system=True) | Q(user=self.request.user)
-        )
-        return form
-
-    def form_valid(self, form):
-        trans = form.save(commit=False)
-        trans.user = self.request.user
-        return super().form_valid(form)
+        {'categories': categories, 'cur_category': cur_category}
+    )
 
 
 class RecurringTransactionCreate(LoginRequiredMixin, CreateView):
@@ -65,6 +398,14 @@ class RecurringTransactionCreate(LoginRequiredMixin, CreateView):
     form_class = RecuringTransactionForm
     template_name = 'transaction/create_recur_trans.html'
     success_url = reverse_lazy('transaction:create-rec-trans')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Добавляем фильтрацию счетов для повторяющихся транзакций
+        form.fields['account'].queryset = Account.objects.filter(
+            user=self.request.user, is_active=True
+        )
+        return form
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -74,9 +415,7 @@ class RecurringTransactionCreate(LoginRequiredMixin, CreateView):
         ctx = super().get_context_data(**kwargs)
         ctx['recur_transactions'] = RecurringTransaction.objects.filter(
             user=self.request.user
-        )
-        ctx['recur_transactions'] = ctx['recur_transactions'].order_by('-id')
-        
+        ).order_by('-id')
         return ctx
 
 
@@ -86,11 +425,11 @@ class CategoryView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('transaction:category')
 
     def form_valid(self, form):
-        cat = form.save(commit=False)
-        cat.user = self.request.user
+        form.instance.user = self.request.user
         try:
+            messages.success(self.request, 'Category created successfully!')
             return super().form_valid(form)
-        except IntegrityError as ie:
+        except IntegrityError:
             form.add_error('name', "Category names can't repeat")
             return self.form_invalid(form)
         
@@ -102,59 +441,41 @@ class CategoryView(LoginRequiredMixin, CreateView):
         ctx['categories'] = categories
         return ctx
 
+
 @login_required
 def category_delete(request, pk):
-    cat = get_object_or_404(Category, id=pk)
+    cat = get_object_or_404(Category, id=pk, user=request.user)
+    
+    if request.method == 'POST':
+        cat.delete()
+        messages.success(request, f'Category "{cat.name}" deleted successfully!')
+    
     categories = Category.objects.filter(
         Q(is_system=True) | Q(user=request.user)
     )
-    if request.method == 'POST' and cat.user == request.user:
-        cat.delete()
     return render(
         request,
         'transaction/category_list.html',
-        {
-            'categories': categories
-        }
-    )
-
-
-@login_required
-def transaction_delete(request, pk):
-    trans = get_object_or_404(Transaction, id=pk)
-    list_filter = TransactionFilter(
-        request.POST, 
-        queryset=Transaction.objects.filter(user=request.user).order_by("-date")
-    )
-    
-    if request.method == 'POST' and trans.user == request.user:
-        trans.delete()
-    return render(
-        request,
-        'transaction/transaction_list_part.html',
-        {
-            'list_filter': list_filter
-        }
+        {'categories': categories}
     )
 
 
 @login_required
 def recur_transaction_delete(request, pk):
-    rec_trans = get_object_or_404(RecurringTransaction, id=pk)
-    if request.method == 'POST' and rec_trans.user == request.user:
+    rec_trans = get_object_or_404(RecurringTransaction, id=pk, user=request.user)
+    
+    if request.method == 'POST':
         rec_trans.delete()
+        messages.success(request, 'Recurring transaction deleted successfully!')
+    
     qs = RecurringTransaction.objects.filter(
         user=request.user
-    ).order_by(
-        '-id'
-    )
+    ).order_by('-id')
 
     return render(
         request,
         'transaction/recur_trans_list.html',
-        {
-            'recur_transactions': qs
-        }
+        {'recur_transactions': qs}
     )
 
 
@@ -162,7 +483,8 @@ def recur_transaction_delete(request, pk):
 def transaction_list(request):
     filter = TransactionFilter(
         request.GET, 
-        queryset=Transaction.objects.filter(user=request.user).order_by("-date")
+        queryset=Transaction.objects.filter(user=request.user).order_by("-date"),
+        user=request.user
     )
     return render(request, 'transaction/transaction_list.html', {'filter': filter})
 
@@ -171,7 +493,7 @@ def transaction_list(request):
 def transaction_list_part(request):
     list_filter = TransactionFilter(
         request.GET, 
-        queryset=Transaction.objects.filter(user=request.user).order_by("-date")
+        queryset=Transaction.objects.filter(user=request.user).order_by("-date"),
+        user=request.user
     )
     return render(request, 'transaction/transaction_list_part.html', {"list_filter": list_filter})
-

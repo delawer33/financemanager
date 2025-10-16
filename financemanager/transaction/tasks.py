@@ -20,6 +20,7 @@ def process_recurring_transaction():
                 and today.month == t.start_date.month 
                 and today.day == t.start_date.day):
             Transaction.objects.create(
+                account=t.account,
                 user=t.user,
                 amount=t.amount,
                 type=t.type,

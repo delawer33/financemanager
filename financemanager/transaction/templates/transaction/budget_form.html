@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if object %}Edit Budget{% else %}Create Budget{% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="budget-form form-container">
+        <h2>{% if object %}Edit Budget{% else %}Create New Budget{% endif %}</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_name">Budget Name:</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="error">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="period_type">Period Type:</label>
+                <select name="period_type" id="period_type" required class="form-control">
+                    <option value="MONTHLY">Monthly</option>
+                    <option value="QUARTERLY">Quarterly</option>
+                    <option value="YEARLY">Yearly</option>
+                    <option value="CUSTOM">Custom Period</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Start Date:</label>
+                <input type="date" name="start_date" id="start_date" required class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="end_date">End Date:</label>
+                <input type="date" name="end_date" id="end_date" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="id_total_income_limit">Total Income Limit:</label>
+                {{ form.total_income_limit }}
+                {% if form.total_income_limit.errors %}
+                    <div class="error">{{ form.total_income_limit.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_total_expense_limit">Total Expense Limit:</label>
+                {{ form.total_expense_limit }}
+                {% if form.total_expense_limit.errors %}
+                    <div class="error">{{ form.total_expense_limit.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!--<h3>Category Limits</h3>
+            {{ category_limits.management_form }}
+            {% for formset in category_limits %}
+                <div class="form-group">
+                    <label>Category:</label>
+                    {{ formset.category }}
+                    <label>Limit Amount:</label>
+                    {{ formset.limit_amount }}
+                    {% if formset.DELETE %}
+                        <label>Delete:</label> {{ formset.DELETE }}
+                    {% endif %}
+                </div>
+            {% endfor %}-->
+            <h3>Category Limits</h3>
+            {{ category_limits.management_form }}
+
+            {% if category_limits.non_form_errors %}
+                <div class="error non-field-errors">
+                    {% for error in category_limits.non_form_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+                
+            <div id="category-limits-forms">
+                {% for formset in category_limits %}
+                    <div class="category-limit-form" data-form-index="{{ forloop.counter0 }}">
+                        {{ formset.category }}
+                        {{ formset.limit_amount }}
+            
+                        <label class="delete-label" style="margin-left: 1rem; cursor: pointer;">
+                            {{ formset.DELETE }} Delete
+                        </label>
+            
+                        {% if formset.errors %}
+                            <div class="error">{{ formset.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            {{formset.errors}}
+
+            <button type="button" id="add-category-limit-btn" class="btn btn-secondary">Add Category Limit</button>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if object %}Update Budget{% else %}Create Budget{% endif %}
+                </button>
+                <a href="{% url 'transaction:budget-list' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('add-category-limit-btn').addEventListener('click', function() {
+            const formsContainer = document.getElementById('category-limits-forms');
+            const totalForms = document.getElementById('id_category_limits-TOTAL_FORMS');
+            const currentFormCount = parseInt(totalForms.value);
+            const maxForms = parseInt(document.getElementById('id_category_limits-MAX_NUM_FORMS').value) || 1000;
+        
+            if (currentFormCount >= maxForms) {
+                alert('Maximum number of category limits reached.');
+                return;
+            }
+        
+            // Клонируем первый пустой шаблон формы
+            const emptyFormTemplate = `
+                <div class="category-limit-form" data-form-index="${currentFormCount}">
+                    <select name="category_limits-${currentFormCount}-category" class="form-control" required>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="category_limits-${currentFormCount}-limit_amount" step="0.01" required class="form-control" />
+                    <input type="hidden" name="category_limits-${currentFormCount}-id" />
+                    <label style="margin-left: 1rem; cursor: pointer;">
+                        <input type="checkbox" name="category_limits-${currentFormCount}-DELETE" /> Delete
+                    </label>
+                </div>
+            `;
+
+        
+            formsContainer.insertAdjacentHTML('beforeend', emptyFormTemplate);
+        
+            totalForms.value = currentFormCount + 1;
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const periodSelect = document.getElementById('period_type');
+            const startDateInput = document.getElementById('start_date');
+            const endDateInput = document.getElementById('end_date');
+          
+            function setDates() {
+              const today = new Date();
+              let startDate, endDate;
+          
+              switch (periodSelect.value) {
+                case 'MONTHLY':
+                  startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                  endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                  break;
+                case 'QUARTERLY':
+                  const quarter = Math.floor(today.getMonth() / 3);
+                  startDate = new Date(today.getFullYear(), quarter * 3, 1);
+                  endDate = new Date(today.getFullYear(), (quarter + 1) * 3, 0);
+                  break;
+                case 'YEARLY':
+                  startDate = new Date(today.getFullYear(), 0, 1);
+                  endDate = new Date(today.getFullYear(), 11, 31);
+                  break;
+                case 'CUSTOM':
+                  // Для кастомного периода — оставим поля пустыми
+                  return;
+              }
+          
+              startDateInput.value = startDate.toISOString().split('T')[0];
+              endDateInput.value = endDate.toISOString().split('T')[0];
+            }
+          
+            // Вызвать при загрузке для установки дат по умолчанию
+            setDates();
+          
+            // Также оставить обработчик на изменение периода, чтобы менять при необходимости
+            periodSelect.addEventListener('change', setDates);
+          });
+    </script>
+    <style>
+        .budget-form {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+{% endblock %}

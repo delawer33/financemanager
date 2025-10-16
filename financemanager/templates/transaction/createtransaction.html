@@ -1,14 +1,22 @@
 {% extends 'base.html' %}
 
 {% block title %}
-	New transaction
+    New Transaction
 {% endblock %}
 
 {% block body %}
-
 <div class="form-container">
     <form action="" method="POST">
         {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_account">Account</label>
+            {{ form.account }}
+            {% if form.account.errors %}
+                <div class="error">{{ form.account.errors }}</div>
+            {% endif %}
+        </div>
+
         <div class="form-group">
             <label for="id_type">Type</label>
             <select name="type" id="id_type" hx-trigger="load, click" hx-get="{% url 'transaction:get-categories' %}" hx-target="#id_category">
@@ -16,27 +24,40 @@
                 <option value="INCOME">Income</option>
             </select>
         </div>
+
         <div class="form-group">
             <label for="id_category">Category</label>
-            <select name="category" id="id_category">
-
-            </select>
+            {{ form.category }}
+            {% if form.category.errors %}
+                <div class="error">{{ form.category.errors }}</div>
+            {% endif %}
         </div>
+
         <div class="form-group">
             <label for="id_date">Date</label>
             {{ form.date }}
+            {% if form.date.errors %}
+                <div class="error">{{ form.date.errors }}</div>
+            {% endif %}
         </div>
+
         <div class="form-group">
             <label for="id_amount">Amount</label>
             {{ form.amount }}
+            {% if form.amount.errors %}
+                <div class="error">{{ form.amount.errors }}</div>
+            {% endif %}
         </div>
-        <div class="form-group" style="width: 100%">
+
+        <div class="form-group">
             <label for="id_description">Description</label>
             {{ form.description }}
+            {% if form.description.errors %}
+                <div class="error">{{ form.description.errors }}</div>
+            {% endif %}
         </div>
-        {% include 'includes/form_errors.html' %}
-        <button type="submit" class="submit-button">Submit</button>
+
+        <button type="submit" class="btn btn-primary">Create Transaction</button>
     </form>
 </div>
-
 {% endblock %}
