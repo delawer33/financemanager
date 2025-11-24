@@ -1,6 +1,9 @@
 from datetime import timedelta
 import pandas as pd
 from django.db.models import Sum, Count
+from django.db.models.functions import TruncDate
+from django.db.models import CharField
+from django.db.models.functions import Cast
 
 
 def period_stats(qs):
@@ -13,9 +16,9 @@ def period_stats(qs):
     ).aggregate(total=Sum('amount'))['total'] or 0
 
     balance = total_income - total_expense
-
-    transactions = qs.extra(
-        select={'day': "strftime('%%Y-%%m-%%d', date)"}
+    
+    transactions = qs.annotate(
+        day=Cast(TruncDate('date'), CharField())
     ).values('day', 'type').annotate(total=Sum('amount'))
 
     labels = sorted(set(t['day'] for t in transactions))

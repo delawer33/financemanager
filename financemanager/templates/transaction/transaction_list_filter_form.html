@@ -7,6 +7,12 @@
         hx-get="{% url "transaction:trans-list-part" %}"
         hx-target="#transaction-list"
         >
+
+        <div class="form-group">
+            <label for="id_account">Account</label>
+            {{ filter.form.account }}
+        </div>        
+
         <div class="form-group">
             <label for="id_type">Type</label>
             <select name="type" id="id_type" hx-vals='{"category":"{{ request.GET.category }}"}' hx-trigger="load, change" hx-get="{% url 'transaction:get-categories-for-filter' %}" hx-target="#id_category">

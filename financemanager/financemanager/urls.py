@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView
 from django.urls import path, include
 from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -28,7 +29,7 @@ urlpatterns = [
     path('manager/', include('transaction.urls')),
     path('manager/stats/', include('stats.urls')),
     path('api/', include('api.urls')),
-]
+] + static(settings.STATIC_URL)
 
 if settings.DEBUG:
     urlpatterns += [

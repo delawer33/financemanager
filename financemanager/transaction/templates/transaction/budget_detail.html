@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Budget: {{ budget.name }}
+{% endblock %}
+
+{% block body %}
+    <h2>{{ budget.name }}</h2>
+    <p><strong>Period:</strong> {{ budget.start_date }} — {{ budget.end_date }}</p>
+    <p><strong>Total Expense Limit:</strong> {{ budget.total_expense_limit }}</p>
+    <p><strong>Total Income Limit:</strong> {{ budget.total_income_limit }}</p>
+    <p><strong>Spent:</strong> {{ spent_amount }}</p>
+    <p><strong>Income:</strong> {{ income_amount }}</p>
+    <p><strong>Remaining:</strong> {{ remaining_budget }}</p>
+
+    <h3>Category Limits</h3>
+    {% if category_progress %}
+        <ul>
+        {% for item in category_progress %}
+            <li>
+                <strong>{{ item.limit.category.name }}:</strong>
+                limit {{ item.limit.limit_amount }},
+                spent {{ item.spent }},
+                remaining {{ item.remaining }},
+                {% if item.over_budget %}<span style="color:red;">Over limit!</span>{% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No category limits set.</p>
+    {% endif %}
+
+    <h3>Transactions in Budget Period</h3>
+    {% if transactions %}
+        <ul>
+            {% for t in transactions %}
+            <li>
+                {{ t.date }} |
+                {{ t.category.name|default:"No Category" }} |
+                {{ t.amount }} |
+                {{ t.type }} |
+                {{ t.description }}
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No transactions in the budget period.</p>
+    {% endif %}
+
+    <a href="{% url 'transaction:budget-list' %}" class="btn btn-secondary">Back to List</a>
+{% endblock %}

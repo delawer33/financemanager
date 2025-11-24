@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-	New transaction
+    New transaction
 {% endblock %}
 
 {% block body %}
@@ -9,6 +9,15 @@
 <div class="form-container">
     <form action="" method="POST">
         {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_account">Account</label>
+            {{ form.account }}
+            {% if form.account.errors %}
+                <div class="error">{{ form.account.errors }}</div>
+            {% endif %}
+        </div>
+
         <div class="form-group">
             <label for="id_type">Type</label>
             <select name="type" id="id_type" hx-trigger="load, click" hx-get="{% url 'transaction:get-categories' %}" hx-target="#id_category">
@@ -16,33 +25,56 @@
                 <option value="INCOME">Income</option>
             </select>
         </div>
+
         <div class="form-group">
             <label for="id_category">Category</label>
             <select name="category" id="id_category">
-
+                <!-- options от HTMX загружаются сюда -->
             </select>
         </div>
+
         <div class="form-group">
-            <label for="id_date">Start date</label>
+            <label for="id_start_date">Start date</label>
             {{ form.start_date }}
+            {% if form.start_date.errors %}
+                <div class="error">{{ form.start_date.errors }}</div>
+            {% endif %}
         </div>
+
         <div class="form-group">
-            <label for="id_date">End date</label>
+            <label for="id_end_date">End date</label>
             {{ form.end_date }}
+            {% if form.end_date.errors %}
+                <div class="error">{{ form.end_date.errors }}</div>
+            {% endif %}
         </div>
+
         <div class="form-group">
             <label for="id_amount">Amount</label>
             {{ form.amount }}
+            {% if form.amount.errors %}
+                <div class="error">{{ form.amount.errors }}</div>
+            {% endif %}
         </div>
+
         <div class="form-group" style="width: 100%">
             <label for="id_description">Description</label>
             {{ form.description }}
+            {% if form.description.errors %}
+                <div class="error">{{ form.description.errors }}</div>
+            {% endif %}
         </div>
+
         <div class="form-group" style="width: 100%">
-            <label for="">Description</label>
+            <label for="id_frequency">Frequency</label>
             {{ form.frequency }}
+            {% if form.frequency.errors %}
+                <div class="error">{{ form.frequency.errors }}</div>
+            {% endif %}
         </div>
+
         {% include 'includes/form_errors.html' %}
+
         <button type="submit" class="submit-button">Submit</button>
     </form>
 </div>

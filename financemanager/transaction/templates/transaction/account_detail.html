@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ account.name }} - Account Details
+{% endblock %}
+
+{% block body %}
+    <div class="account-detail">
+        <div class="account-header">
+            <h2>{{ account.name }}</h2>
+            <div class="account-actions">
+                <a href="{% url 'transaction:account-update' account.pk %}" class="btn btn-primary">Edit Account</a>
+                <a href="{% url 'transaction:account-list' %}" class="btn btn-secondary">Back to Accounts</a>
+            </div>
+        </div>
+
+        <div class="account-info">
+            <div class="info-card">
+                <h3>Account Information</h3>
+                <p><strong>Type:</strong> {{ account.get_account_type_display }}</p>
+                <p><strong>Current Balance:</strong> {{ account.balance }} {{ account.currency }}</p>
+                <p><strong>Initial Balance:</strong> {{ account.initial_balance }} {{ account.currency }}</p>
+                <p><strong>Created:</strong> {{ account.created_at|date:"F d, Y" }}</p>
+                <p><strong>Status:</strong> {% if account.is_active %}Active{% else %}Inactive{% endif %}</p>
+            </div>
+
+            <div class="info-card">
+                <h3>Statistics</h3>
+                <p><strong>Total Income:</strong> {{ income_total }} {{ account.currency }}</p>
+                <p><strong>Total Expenses:</strong> {{ outcome_total }} {{ account.currency }}</p>
+                <p><strong>Net Change:</strong> {{ account.balance|floatformat:2|add:account.initial_balance|floatformat:2 }} {{ account.currency }}</p>
+            </div>
+        </div>
+
+        <div class="transactions-section">
+            <h3>Recent Transactions</h3>
+            {% if transactions %}
+                <div class="transactions-list">
+                    {% for transaction in transactions %}
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <span class="date">{{ transaction.date }}</span>
+                                <span class="category">{{ transaction.category.name|default:"Uncategorized" }}</span>
+                                <span class="description">{{ transaction.description|default:"-" }}</span>
+                            </div>
+                            <div class="transaction-amount {% if transaction.type == 'INCOME' %}income{% else %}expense{% endif %}">
+                                {% if transaction.type == 'INCOME' %}+{% else %}-{% endif %}{{ transaction.amount }} {{ account.currency }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No transactions found for this account.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <style>
+        .account-detail {
+            padding: 2rem;
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 1rem;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .account-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+        }
+
+        .info-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .transactions-section {
+            margin-top: 2rem;
+        }
+
+        .transactions-list {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .date {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .category {
+            color: #333;
+        }
+
+        .description {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .transaction-amount.income {
+            color: #28a745;
+        }
+
+        .transaction-amount.expense {
+            color: #dc3545;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+{% endblock %}

@@ -42,7 +42,7 @@ class Currency(models.Model):
 
     symbol = models.CharField(
         'Symbol',
-        max_length=2
+        max_length=3
     )
 
     def __str__(self):
@@ -77,8 +77,9 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
 
     currency = models.ForeignKey(
         Currency,
-        on_delete=models.SET_DEFAULT,
-        default=1
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
 
     is_active = models.BooleanField(
