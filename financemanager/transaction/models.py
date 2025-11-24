@@ -53,8 +53,6 @@ class Category(models.Model):
 
 
 class Account(models.Model):
-    """Счёт пользователя (банковский счёт, наличные, карта и т.д.)"""
-    
     ACCOUNT_TYPES = [
         ('BANK', 'Bank Account'),
         ('CASH', 'Cash'),
@@ -69,7 +67,7 @@ class Account(models.Model):
     balance = models.DecimalField('Current Balance', max_digits=16, decimal_places=2, default=0)
     initial_balance = models.DecimalField('Initial Balance', max_digits=16, decimal_places=2, default=0)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='accounts')
-    currency = models.CharField('Currency', max_length=3, default='USD')  # ISO код валюты
+    currency = models.CharField('Currency', max_length=3, default='USD')
     is_active = models.BooleanField('Active', default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -82,7 +80,6 @@ class Account(models.Model):
         return f'{self.name} ({self.get_account_type_display()})'
     
     def update_balance(self):
-        """Пересчитывает баланс на основе транзакций"""
         from django.db.models import Sum, Q
         
         income = Transaction.objects.filter(
@@ -100,8 +97,6 @@ class Account(models.Model):
 
 
 class Budget(models.Model):
-    """Бюджет пользователя на определённый период"""
-    
     PERIOD_CHOICES = [
         ('MONTHLY', 'Monthly'),
         ('QUARTERLY', 'Quarterly'),
@@ -130,7 +125,6 @@ class Budget(models.Model):
             raise ValidationError('End date must be after start date')
     
     def get_spent_amount(self):
-        """Возвращает потраченную сумму в рамках бюджета"""
         return Transaction.objects.filter(
             user=self.user,
             type=Type.OUTCOME,
@@ -138,7 +132,6 @@ class Budget(models.Model):
         ).aggregate(models.Sum('amount'))['amount__sum'] or Decimal('0')
     
     def get_income_amount(self):
-        """Возвращает сумму доходов в рамках бюджета"""
         return Transaction.objects.filter(
             user=self.user,
             type=Type.INCOME,
@@ -146,15 +139,12 @@ class Budget(models.Model):
         ).aggregate(models.Sum('amount'))['amount__sum'] or Decimal('0')
     
     def get_remaining_budget(self):
-        """Возвращает оставшийся бюджет"""
         if self.total_expense_limit:
             return self.total_expense_limit - self.get_spent_amount()
         return None
 
 
 class BudgetCategoryLimit(models.Model):
-    """Лимиты по категориям в рамках бюджета"""
-    
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='category_limits')
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     limit_amount = models.DecimalField('Limit Amount', max_digits=16, decimal_places=2)
@@ -166,7 +156,6 @@ class BudgetCategoryLimit(models.Model):
         return f'{self.budget.name} - {self.category.name}: {self.limit_amount}'
     
     def get_spent_amount(self):
-        """Возвращает потраченную сумму по этой категории в рамках бюджета"""
         return Transaction.objects.filter(
             user=self.budget.user,
             category=self.category,
@@ -175,22 +164,18 @@ class BudgetCategoryLimit(models.Model):
         ).aggregate(models.Sum('amount'))['amount__sum'] or Decimal('0')
     
     def get_remaining_limit(self):
-        """Возвращает оставшийся лимит по категории"""
         return self.limit_amount - self.get_spent_amount()
 
 
-# Обновляем существующую модель Transaction
 class Transaction(models.Model):
-    # Добавляем поле account
     account = models.ForeignKey(
         Account,
         on_delete=models.CASCADE,
         related_name='transactions',
-        null=True,  # Для совместимости с существующими данными
+        null=True,
         blank=True
     )
     
-    # Остальные поля остаются без изменений
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     type = models.CharField("Type", max_length=20, choices=Type.choices, default=Type.OUTCOME)
     amount = models.DecimalField(max_digits=16, decimal_places=2)
@@ -208,7 +193,6 @@ class Transaction(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
-        # Обновляем баланс счёта после сохранения транзакции
         if self.account:
             self.account.update_balance()
     
@@ -219,9 +203,7 @@ class Transaction(models.Model):
                 f'date: {self.date}')
 
 
-# Обновляем RecurringTransaction
 class RecurringTransaction(models.Model):
-    # Добавляем поле account
     account = models.ForeignKey(
         Account,
         on_delete=models.CASCADE,
@@ -230,7 +212,6 @@ class RecurringTransaction(models.Model):
         blank=True
     )
     
-    # Остальные поля остаются без изменений
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=16, decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)

@@ -23,13 +23,11 @@ urlpatterns = [
     path('accounts/<int:pk>/edit/', views.AccountUpdateView.as_view(), name='account-update'),
     path('accounts/<int:pk>/delete/', views.account_delete, name='account-delete'),
     
-    # Новые URL для Budget
     path('budgets/', views.BudgetListView.as_view(), name='budget-list'),
     path('budgets/create/', views.BudgetCreateView.as_view(), name='budget-create'),
     path('budgets/<int:pk>/', views.BudgetDetailView.as_view(), name='budget-detail'),
     path('budgets/<int:pk>/delete/', views.budget_delete, name='budget-delete'),
     
-    # API endpoints
     path('api/account/<int:account_id>/balance/', views.get_account_balance, name='account-balance-api'),
     path('api/budget/<int:budget_id>/progress/', views.budget_progress_api, name='budget-progress-api'),
     

@@ -24,15 +24,11 @@ from .models import (
 )
 
 
-# ========== DASHBOARD ==========
 @login_required
 def dashboard(request):
-    """Обновленный дашборд с информацией о счетах и бюджетах"""
-    # Общая статистика
     accounts = Account.objects.filter(user=request.user, is_active=True)
     total_balance = accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
     
-    # Текущий активный бюджет
     current_budget = Budget.objects.filter(
         user=request.user,
         is_active=True,
@@ -40,7 +36,6 @@ def dashboard(request):
         end_date__gte=timezone.now().date()
     ).first()
     
-    # Последние транзакции
     recent_transactions = Transaction.objects.filter(
         user=request.user
     ).select_related('category', 'account').order_by('-date')[:5]
@@ -62,9 +57,7 @@ def dashboard(request):
     return render(request, 'transaction/dashboard.html', context)
 
 
-# ========== ACCOUNTS ==========
 class AccountListView(LoginRequiredMixin, ListView):
-    """Список счетов пользователя"""
     model = Account
     template_name = 'transaction/account_list.html'
     context_object_name = 'accounts'
@@ -74,7 +67,6 @@ class AccountListView(LoginRequiredMixin, ListView):
 
 
 class AccountCreateView(LoginRequiredMixin, CreateView):
-    """Создание нового счета"""
     model = Account
     form_class = AccountForm
     template_name = 'transaction/account_form.html'
@@ -88,7 +80,6 @@ class AccountCreateView(LoginRequiredMixin, CreateView):
 
 
 class AccountUpdateView(LoginRequiredMixin, UpdateView):
-    """Редактирование счета"""
     model = Account
     form_class = AccountForm
     template_name = 'transaction/account_form.html'
@@ -103,7 +94,6 @@ class AccountUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class AccountDetailView(LoginRequiredMixin, DetailView):
-    """Детальная информация о счете с транзакциями"""
     model = Account
     template_name = 'transaction/account_detail.html'
     context_object_name = 'account'
@@ -115,12 +105,10 @@ class AccountDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         account = self.get_object()
         
-        # Транзакции по этому счету
         transactions = Transaction.objects.filter(
             account=account
         ).select_related('category').order_by('-date')
         
-        # Фильтрация транзакций
         filter = TransactionFilter(self.request.GET, queryset=transactions)
         
         context.update({
@@ -137,11 +125,9 @@ class AccountDetailView(LoginRequiredMixin, DetailView):
 
 @login_required
 def account_delete(request, pk):
-    """Удаление счета (с проверкой на наличие транзакций)"""
     account = get_object_or_404(Account, pk=pk, user=request.user)
     
     if request.method == 'POST':
-        # Проверяем, есть ли связанные транзакции
         transaction_count = Transaction.objects.filter(account=account).count()
         
         if transaction_count > 0:
@@ -157,9 +143,7 @@ def account_delete(request, pk):
     return redirect('transaction:account-list')
 
 
-# ========== BUDGETS ==========
 class BudgetListView(LoginRequiredMixin, ListView):
-    """Список бюджетов пользователя"""
     model = Budget
     template_name = 'transaction/budget_list.html'
     context_object_name = 'budgets'
@@ -169,7 +153,6 @@ class BudgetListView(LoginRequiredMixin, ListView):
 
 
 class BudgetCreateView(LoginRequiredMixin, CreateView):
-    """Создание нового бюджета"""
     model = Budget
     form_class = BudgetForm
     template_name = 'transaction/budget_form.html'
@@ -188,7 +171,6 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
             context['category_limits'] = BudgetCategoryLimitFormSet(self.request.POST)
         else:
             context['category_limits'] = BudgetCategoryLimitFormSet()
-        # Добавляем категории для формы динамического добавления
         context['categories'] = Category.objects.filter(
             Q(is_system=True) | Q(user=self.request.user)
         ).order_by('name')
@@ -211,7 +193,6 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
 
 
 class BudgetDetailView(LoginRequiredMixin, DetailView):
-    """Детальная информация о бюджете с прогрессом"""
     model = Budget
     template_name = 'transaction/budget_detail.html'
     context_object_name = 'budget'
@@ -223,12 +204,10 @@ class BudgetDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         budget = self.get_object()
         
-        # Статистика по бюджету
         spent_amount = budget.get_spent_amount()
         income_amount = budget.get_income_amount()
         remaining_budget = budget.get_remaining_budget()
         
-        # Прогресс по категориям
         category_limits = BudgetCategoryLimit.objects.filter(budget=budget)
         category_progress = []
         
@@ -245,7 +224,6 @@ class BudgetDetailView(LoginRequiredMixin, DetailView):
                 'over_budget': spent > limit.limit_amount,
             })
         
-        # Транзакции в период бюджета
         transactions = Transaction.objects.filter(
             user=self.request.user,
             date__range=[budget.start_date, budget.end_date]
@@ -266,7 +244,6 @@ class BudgetDetailView(LoginRequiredMixin, DetailView):
 
 @login_required
 def budget_delete(request, pk):
-    """Удаление бюджета"""
     budget = get_object_or_404(Budget, pk=pk, user=request.user)
     
     if request.method == 'POST':
@@ -276,21 +253,16 @@ def budget_delete(request, pk):
     return redirect('transaction:budget-list')
 
 
-# ========== ПЕРЕПИСАННЫЕ СУЩЕСТВУЮЩИЕ VIEW ==========
-
 class TransactionCreate(LoginRequiredMixin, CreateView):
-    """Обновленное создание транзакции с поддержкой счетов"""
     form_class = TransactionCreateForm
     template_name = 'transaction/createtransaction.html'
     success_url = reverse_lazy('transaction:create-trans')
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Фильтруем категории
         form.fields['category'].queryset = Category.objects.filter(
             Q(is_system=True) | Q(user=self.request.user)
         )
-        # Фильтруем счета пользователя
         form.fields['account'].queryset = Account.objects.filter(
             user=self.request.user, is_active=True
         )
@@ -304,20 +276,17 @@ class TransactionCreate(LoginRequiredMixin, CreateView):
 
 @login_required
 def transaction_delete(request, pk):
-    """Обновленное удаление транзакции с обновлением баланса счета"""
     trans = get_object_or_404(Transaction, id=pk, user=request.user)
     
     if request.method == 'POST':
-        account = trans.account  # Запоминаем счет для обновления баланса
+        account = trans.account
         trans.delete()
         
-        # Обновляем баланс счета после удаления транзакции
         if account:
             account.update_balance()
         
         messages.success(request, 'Transaction deleted successfully!')
     
-    # Возвращаем обновленный список транзакций
     list_filter = TransactionFilter(
         request.GET, 
         queryset=Transaction.objects.filter(user=request.user).order_by("-date")
@@ -332,7 +301,6 @@ def transaction_delete(request, pk):
 
 @login_required
 def get_categories_by_type(request):
-    """Обновлено для AJAX-запросов фильтрации категорий"""
     transaction_type = request.GET.get('type')
     user_categories = Category.objects.filter(
         Q(type=transaction_type) & (Q(is_system=True) | Q(user=request.user))
@@ -344,10 +312,8 @@ def get_categories_by_type(request):
     )
 
 
-# ========== AJAX/API ENDPOINTS ==========
 @login_required
 def get_account_balance(request, account_id):
-    """API endpoint для получения баланса счета"""
     try:
         account = Account.objects.get(id=account_id, user=request.user)
         return JsonResponse({
@@ -360,7 +326,6 @@ def get_account_balance(request, account_id):
 
 @login_required
 def budget_progress_api(request, budget_id):
-    """API endpoint для получения прогресса бюджета"""
     try:
         budget = Budget.objects.get(id=budget_id, user=request.user)
         
@@ -375,8 +340,6 @@ def budget_progress_api(request, budget_id):
     except Budget.DoesNotExist:
         return JsonResponse({'error': 'Budget not found'}, status=404)
 
-
-# ========== СОХРАНЕННЫЕ СУЩЕСТВУЮЩИЕ VIEW БЕЗ ИЗМЕНЕНИЙ ==========
 
 def get_categories_by_type_for_filter(request):
     transaction_type = request.GET.get('type')
@@ -401,7 +364,6 @@ class RecurringTransactionCreate(LoginRequiredMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Добавляем фильтрацию счетов для повторяющихся транзакций
         form.fields['account'].queryset = Account.objects.filter(
             user=self.request.user, is_active=True
         )

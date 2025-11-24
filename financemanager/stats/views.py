@@ -30,6 +30,7 @@ def stats_view(request):
         )
     )
     transactions = transaction_filter.qs
+    data = None
     if not data:
         data = extended_period_stats(transactions)
         cache.set(cache_key, data, 60 * 60 * 24 * 7)
