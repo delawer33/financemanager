@@ -1,6 +1,6 @@
 <option value="Nocategory">---------</option>
 {% for category in categories %}
-    <option {% if category.id == cur_category|add:0 %} selected {% endif %} value="{{ category.id }}">{{ category.name }}</option>
+    <option {% if category.id == cur_category|add:0 %} selected {% endif %} value="{{ category.id }}">{{ category.translated_name }}</option>
 {% endfor %}
 <option value="Other" {% if cur_category == "Other" %} selected {% endif %}>
     Other

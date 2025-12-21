@@ -30,3 +30,5 @@ celerybeat-schedule
 var/
 staticfiles/
 media/
+
+migrations/

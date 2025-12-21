@@ -1,18 +1,19 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}
-    {% if object %}Edit Budget{% else %}Create Budget{% endif %}
+    {% if object %}{% trans "Edit Budget" %}{% else %}{% trans "Create Budget" %}{% endif %}
 {% endblock %}
 
 {% block body %}
     <div class="budget-form form-container">
-        <h2>{% if object %}Edit Budget{% else %}Create New Budget{% endif %}</h2>
+        <h2>{% if object %}{% trans "Edit Budget" %}{% else %}{% trans "Create New Budget" %}{% endif %}</h2>
 
         <form method="post">
             {% csrf_token %}
 
             <div class="form-group">
-                <label for="id_name">Budget Name:</label>
+                <label for="id_name">{% trans "Budget Name" %}:</label>
                 {{ form.name }}
                 {% if form.name.errors %}
                     <div class="error">{{ form.name.errors }}</div>
@@ -20,33 +21,25 @@
             </div>
 
             <div class="form-group">
-                <label for="period_type">Period Type:</label>
+                <label for="period_type">{% trans "Period Type" %}:</label>
                 <select name="period_type" id="period_type" required class="form-control">
-                    <option value="MONTHLY">Monthly</option>
-                    <option value="QUARTERLY">Quarterly</option>
-                    <option value="YEARLY">Yearly</option>
-                    <option value="CUSTOM">Custom Period</option>
+                    <option value="MONTHLY">{% trans "Monthly" %}</option>
+                    <option value="QUARTERLY">{% trans "Quarterly" %}</option>
+                    <option value="YEARLY">{% trans "Yearly" %}</option>
+                    <option value="CUSTOM">{% trans "Custom Period" %}</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="start_date">Start Date:</label>
+                <label for="start_date">{% trans "Start Date" %}:</label>
                 <input type="date" name="start_date" id="start_date" required class="form-control">
             </div>
             <div class="form-group">
-                <label for="end_date">End Date:</label>
+                <label for="end_date">{% trans "End Date" %}:</label>
                 <input type="date" name="end_date" id="end_date" required class="form-control">
             </div>
 
             <div class="form-group">
-                <label for="id_total_income_limit">Total Income Limit:</label>
-                {{ form.total_income_limit }}
-                {% if form.total_income_limit.errors %}
-                    <div class="error">{{ form.total_income_limit.errors }}</div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="id_total_expense_limit">Total Expense Limit:</label>
+                <label for="id_total_expense_limit">{% trans "Total Expense Limit" %}:</label>
                 {{ form.total_expense_limit }}
                 {% if form.total_expense_limit.errors %}
                     <div class="error">{{ form.total_expense_limit.errors }}</div>
@@ -66,7 +59,7 @@
                     {% endif %}
                 </div>
             {% endfor %}-->
-            <h3>Category Limits</h3>
+            <h3>{% trans "Category Limits" %}</h3>
             {{ category_limits.management_form }}
 
             {% if category_limits.non_form_errors %}
@@ -79,12 +72,12 @@
                 
             <div id="category-limits-forms">
                 {% for formset in category_limits %}
-                    <div class="category-limit-form" data-form-index="{{ forloop.counter0 }}">
+                    <div class="category-limit-form">
                         {{ formset.category }}
                         {{ formset.limit_amount }}
             
                         <label class="delete-label" style="margin-left: 1rem; cursor: pointer;">
-                            {{ formset.DELETE }} Delete
+                            {{ formset.DELETE }} {% trans "Delete" %}
                         </label>
             
                         {% if formset.errors %}
@@ -94,51 +87,65 @@
                 {% endfor %}
             </div>
             
-            {{formset.errors}}
+            <!-- Шаблон пустой формы formset'а (используем __prefix__) -->
+            <div id="empty-category-limit-form" style="display: none;">
+                <div class="category-limit-form">
+                    {{ category_limits.empty_form.category }}
+                    {{ category_limits.empty_form.limit_amount }}
+                    <label class="delete-label" style="margin-left: 1rem; cursor: pointer;">
+                        {{ category_limits.empty_form.DELETE }} {% trans "Delete" %}
+                    </label>
+                </div>
+            </div>
 
-            <button type="button" id="add-category-limit-btn" class="btn btn-secondary">Add Category Limit</button>
+            <button type="button" id="add-category-limit-btn" class="btn btn-secondary">{% trans "Add Category Limit" %}</button>
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
-                    {% if object %}Update Budget{% else %}Create Budget{% endif %}
+                    {% if object %}{% trans "Update Budget" %}{% else %}{% trans "Create Budget" %}{% endif %}
                 </button>
-                <a href="{% url 'transaction:budget-list' %}" class="btn btn-secondary">Cancel</a>
+                <a href="{% url 'transaction:budget-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
             </div>
         </form>
     </div>
 
     <script>
-        document.getElementById('add-category-limit-btn').addEventListener('click', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const formsContainer = document.getElementById('category-limits-forms');
-            const totalForms = document.getElementById('id_category_limits-TOTAL_FORMS');
-            const currentFormCount = parseInt(totalForms.value);
-            const maxForms = parseInt(document.getElementById('id_category_limits-MAX_NUM_FORMS').value) || 1000;
-        
-            if (currentFormCount >= maxForms) {
-                alert('Maximum number of category limits reached.');
-                return;
-            }
-        
-            // Клонируем первый пустой шаблон формы
-            const emptyFormTemplate = `
-                <div class="category-limit-form" data-form-index="${currentFormCount}">
-                    <select name="category_limits-${currentFormCount}-category" class="form-control" required>
-                        {% for category in categories %}
-                            <option value="{{ category.id }}">{{ category.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="number" name="category_limits-${currentFormCount}-limit_amount" step="0.01" required class="form-control" />
-                    <input type="hidden" name="category_limits-${currentFormCount}-id" />
-                    <label style="margin-left: 1rem; cursor: pointer;">
-                        <input type="checkbox" name="category_limits-${currentFormCount}-DELETE" /> Delete
-                    </label>
-                </div>
-            `;
+            const totalFormsInput = document.getElementById('id_category_limits-TOTAL_FORMS');
+            const emptyFormTemplate = document.getElementById('empty-category-limit-form').innerHTML;
+            const addBtn = document.getElementById('add-category-limit-btn');
 
-        
-            formsContainer.insertAdjacentHTML('beforeend', emptyFormTemplate);
-        
-            totalForms.value = currentFormCount + 1;
+            // Добавление новой формы по кнопке
+            addBtn.addEventListener('click', function () {
+                const index = parseInt(totalFormsInput.value);
+                const newFormHtml = emptyFormTemplate.replace(/__prefix__/g, index);
+                formsContainer.insertAdjacentHTML('beforeend', newFormHtml);
+                totalFormsInput.value = index + 1;
+            });
+
+            // Делегирование кликов по "Delete"
+            formsContainer.addEventListener('click', function (e) {
+                const deleteLabel = e.target.closest('.delete-label');
+                if (!deleteLabel) return;
+
+                const row = deleteLabel.closest('.category-limit-form');
+                const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+                const idField = row.querySelector('input[name$="-id"]');
+
+                if (idField && idField.value) {
+                    // Существующая запись: помечаем на удаление и скрываем строку
+                    if (deleteCheckbox) {
+                        deleteCheckbox.checked = true;
+                    }
+                    row.style.display = 'none';
+                } else {
+                    // Новая несохранённая форма: просто удаляем из DOM и пересчитываем количество форм
+                    row.remove();
+                    const forms = formsContainer.querySelectorAll('.category-limit-form');
+                    totalFormsInput.value = forms.length;
+                }
+            });
         });
     </script>
 

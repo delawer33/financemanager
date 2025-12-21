@@ -2,18 +2,46 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from decimal import Decimal
 
 class Type(models.TextChoices):
-    INCOME = "INCOME", "Income"
-    OUTCOME = "OUTCOME", "Outcome"
+    INCOME = "INCOME", _("Income")
+    OUTCOME = "OUTCOME", _("Outcome")
 
 
 class ReccuringTransactionFrequency(models.TextChoices):
-    DAILY = 'daily', 'Daily'
-    WEEKLY = 'weekly', 'Weekly'
-    MONTHLY = 'monthly', 'Monthly'
-    YEARLY = 'yearly', 'Yearly'
+    DAILY = 'daily', _('Daily')
+    WEEKLY = 'weekly', _('Weekly')
+    MONTHLY = 'monthly', _('Monthly')
+    YEARLY = 'yearly', _('Yearly')
+
+# Словарь переводов для системных категорий
+SYSTEM_CATEGORY_LABELS = {
+    # OUTCOME categories
+    'food_dining': _("Food & Dining"),
+    'transportation': _("Transportation"),
+    'shopping': _("Shopping"),
+    'bills_utilities': _("Bills & Utilities"),
+    'entertainment': _("Entertainment"),
+    'healthcare': _("Healthcare"),
+    'education': _("Education"),
+    'travel': _("Travel"),
+    'personal_care': _("Personal Care"),
+    'gifts_donations': _("Gifts & Donations"),
+    'home_garden': _("Home & Garden"),
+    'insurance': _("Insurance"),
+    'taxes': _("Taxes"),
+    'other_expenses': _("Other Expenses"),
+    # INCOME categories
+    'salary': _("Salary"),
+    'freelance': _("Freelance"),
+    'investment': _("Investment"),
+    'rental_income': _("Rental Income"),
+    'business': _("Business"),
+    'gifts': _("Gifts"),
+    'other_income': _("Other Income"),
+}
 
 class Category(models.Model):
     name = models.CharField(
@@ -43,8 +71,15 @@ class Category(models.Model):
     )
 
 
-    def __str__(self):
+    @property
+    def translated_name(self):
+        """Возвращает переведенное название категории"""
+        if self.is_system and self.name in SYSTEM_CATEGORY_LABELS:
+            return str(SYSTEM_CATEGORY_LABELS[self.name])
         return self.name
+
+    def __str__(self):
+        return self.translated_name
     
     class Meta:
         unique_together = (('name', 'user'),)
@@ -54,12 +89,12 @@ class Category(models.Model):
 
 class Account(models.Model):
     ACCOUNT_TYPES = [
-        ('BANK', 'Bank Account'),
-        ('CASH', 'Cash'),
-        ('CREDIT_CARD', 'Credit Card'),
-        ('INVESTMENT', 'Investment Account'),
-        ('SAVINGS', 'Savings Account'),
-        ('WALLET', 'Digital Wallet'),
+        ('BANK', _('Bank Account')),
+        ('CASH', _('Cash')),
+        ('CREDIT_CARD', _('Credit Card')),
+        ('INVESTMENT', _('Investment Account')),
+        ('SAVINGS', _('Savings Account')),
+        ('WALLET', _('Digital Wallet')),
     ]
     
     name = models.CharField('Account Name', max_length=100)
@@ -67,7 +102,6 @@ class Account(models.Model):
     balance = models.DecimalField('Current Balance', max_digits=16, decimal_places=2, default=0)
     initial_balance = models.DecimalField('Initial Balance', max_digits=16, decimal_places=2, default=0)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='accounts')
-    currency = models.CharField('Currency', max_length=3, default='USD')
     is_active = models.BooleanField('Active', default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -98,10 +132,10 @@ class Account(models.Model):
 
 class Budget(models.Model):
     PERIOD_CHOICES = [
-        ('MONTHLY', 'Monthly'),
-        ('QUARTERLY', 'Quarterly'),
-        ('YEARLY', 'Yearly'),
-        ('CUSTOM', 'Custom Period'),
+        ('MONTHLY', _('Monthly')),
+        ('QUARTERLY', _('Quarterly')),
+        ('YEARLY', _('Yearly')),
+        ('CUSTOM', _('Custom Period')),
     ]
     
     name = models.CharField('Budget Name', max_length=100)
@@ -109,7 +143,6 @@ class Budget(models.Model):
     period_type = models.CharField('Period Type', max_length=20, choices=PERIOD_CHOICES)
     start_date = models.DateField('Start Date')
     end_date = models.DateField('End Date')
-    total_income_limit = models.DecimalField('Total Income Limit', max_digits=16, decimal_places=2, null=True, blank=True)
     total_expense_limit = models.DecimalField('Total Expense Limit', max_digits=16, decimal_places=2, null=True, blank=True)
     is_active = models.BooleanField('Active', default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -153,7 +186,7 @@ class BudgetCategoryLimit(models.Model):
         unique_together = ('budget', 'category')
     
     def __str__(self):
-        return f'{self.budget.name} - {self.category.name}: {self.limit_amount}'
+        return f'{self.budget.name} - {self.category.translated_name}: {self.limit_amount}'
     
     def get_spent_amount(self):
         return Transaction.objects.filter(
@@ -186,7 +219,7 @@ class Transaction(models.Model):
     def clean(self):
         if self.category and self.category.type != self.type:
             raise ValidationError(
-                f"Category '{self.category.name}' does not match Transaction "
+                f"Category '{self.category.translated_name}' does not match Transaction "
                 f"type '{self.type}'"
             )
     

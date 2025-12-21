@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}
-    {{ account.name }} - Account Details
+    {% blocktrans with name=account.name %}{{ name }} - Account Details{% endblocktrans %}
 {% endblock %}
 
 {% block body %}
@@ -9,48 +10,48 @@
         <div class="account-header">
             <h2>{{ account.name }}</h2>
             <div class="account-actions">
-                <a href="{% url 'transaction:account-update' account.pk %}" class="btn btn-primary">Edit Account</a>
-                <a href="{% url 'transaction:account-list' %}" class="btn btn-secondary">Back to Accounts</a>
+                <a href="{% url 'transaction:account-update' account.pk %}" class="btn btn-primary">{% trans "Edit Account" %}</a>
+                <a href="{% url 'transaction:account-list' %}" class="btn btn-secondary">{% trans "Back to Accounts" %}</a>
             </div>
         </div>
 
         <div class="account-info">
             <div class="info-card">
-                <h3>Account Information</h3>
-                <p><strong>Type:</strong> {{ account.get_account_type_display }}</p>
-                <p><strong>Current Balance:</strong> {{ account.balance }} {{ account.currency }}</p>
-                <p><strong>Initial Balance:</strong> {{ account.initial_balance }} {{ account.currency }}</p>
-                <p><strong>Created:</strong> {{ account.created_at|date:"F d, Y" }}</p>
-                <p><strong>Status:</strong> {% if account.is_active %}Active{% else %}Inactive{% endif %}</p>
+                <h3>{% trans "Account Information" %}</h3>
+                <p><strong>{% trans "Type" %}:</strong> {{ account.get_account_type_display }}</p>
+                <p><strong>{% trans "Current Balance" %}:</strong> {{ account.balance }} {{ user.currency.symbol }}</p>
+                <p><strong>{% trans "Initial Balance" %}:</strong> {{ account.initial_balance }} {{ user.currency.symbol }}</p>
+                <p><strong>{% trans "Created" %}:</strong> {{ account.created_at|date:"F d, Y" }}</p>
+                <p><strong>{% trans "Status" %}:</strong> {% if account.is_active %}{% trans "Active" %}{% else %}{% trans "Inactive" %}{% endif %}</p>
             </div>
 
             <div class="info-card">
-                <h3>Statistics</h3>
-                <p><strong>Total Income:</strong> {{ income_total }} {{ account.currency }}</p>
-                <p><strong>Total Expenses:</strong> {{ outcome_total }} {{ account.currency }}</p>
-                <p><strong>Net Change:</strong> {{ account.balance|floatformat:2|add:account.initial_balance|floatformat:2 }} {{ account.currency }}</p>
+                <h3>{% trans "Statistics" %}</h3>
+                <p><strong>{% trans "Total Income" %}:</strong> {{ income_total }} {{ user.currency.symbol }}</p>
+                <p><strong>{% trans "Total Expenses" %}:</strong> {{ outcome_total }} {{ user.currency.symbol }}</p>
+                <p><strong>{% trans "Net Change" %}:</strong> {{ net_change }} {{ user.currency.symbol }}</p>
             </div>
         </div>
 
         <div class="transactions-section">
-            <h3>Recent Transactions</h3>
+            <h3>{% trans "Recent Transactions" %}</h3>
             {% if transactions %}
                 <div class="transactions-list">
                     {% for transaction in transactions %}
                         <div class="transaction-item">
                             <div class="transaction-info">
                                 <span class="date">{{ transaction.date }}</span>
-                                <span class="category">{{ transaction.category.name|default:"Uncategorized" }}</span>
+                                <span class="category">{{ transaction.category.translated_name|default:_("Uncategorized") }}</span>
                                 <span class="description">{{ transaction.description|default:"-" }}</span>
                             </div>
                             <div class="transaction-amount {% if transaction.type == 'INCOME' %}income{% else %}expense{% endif %}">
-                                {% if transaction.type == 'INCOME' %}+{% else %}-{% endif %}{{ transaction.amount }} {{ account.currency }}
+                                {% if transaction.type == 'INCOME' %}+{% else %}-{% endif %}{{ transaction.amount }} {{ user.currency.symbol }}
                             </div>
                         </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <p>No transactions found for this account.</p>
+                <p>{% trans "No transactions found for this account." %}</p>
             {% endif %}
         </div>
     </div>

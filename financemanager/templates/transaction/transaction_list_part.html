@@ -1,10 +1,11 @@
+{% load i18n %}
 <table class="transaction-table">
     <thead>
         <tr>
-            <th>Category</th>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>Description</th>
+            <th>{% trans "Category" %}</th>
+            <th>{% trans "Amount" %}</th>
+            <th>{% trans "Date" %}</th>
+            <th>{% trans "Description" %}</th>
             <th> </th>
         </tr>
     </thead>
@@ -40,7 +41,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="4" style="text-align: center;">No transactions found.</td>
+            <td colspan="4" style="text-align: center;">{% trans "No transactions found." %}</td>
         </tr>
         {% endfor %}
     </tbody>

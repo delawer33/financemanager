@@ -1,27 +1,29 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}
-    Dashboard
+    {% trans "Dashboard" %}
 {% endblock %}
 
 {% block body %}
 
+{% load i18n %}
     <div class="metrics">
         <div class="card">
-            <h3>Income (30 days)</h3>
+            <h3>{% trans "Income (30 days)" %}</h3>
             <p>{{ total_income }} {{ user.currency.symbol }}</p>
         </div>
         <div class="card">
-            <h3>Expense (30 days)</h3>
+            <h3>{% trans "Expense (30 days)" %}</h3>
             <p>{{ total_expense }} {{ user.currency.symbol }}</p>
         </div>
         <div class="card">
-            <h3>Total Balance</h3>
+            <h3>{% trans "Total Balance" %}</h3>
             <p>{{ balance }} {{ user.currency.symbol }}</p>
         </div>
     </div>
 
-    <h2>Your Accounts</h2>
+    <h2>{% trans "Your Accounts" %}</h2>
     <div class="accounts-grid">
         {% for account in accounts %}
             <div class="card account-card">
@@ -32,40 +34,40 @@
                 <div class="account-balance">{{ account.balance }} {{ account.currency }}</div>
             </div>
         {% empty %}
-            <p>No accounts found.</p>
+            <p>{% trans "No accounts found." %}</p>
         {% endfor %}
     </div>
 
     {% if budget %}
-        <h2>Current Budget</h2>
+        <h2>{% trans "Current Budget" %}</h2>
         <div class="budget-card">
             <div class="budget-header">
                 <h3 class="budget-title">{{ budget.name }}</h3>
                 <span>{{ budget.start_date }} — {{ budget.end_date }}</span>
             </div>
             <div class="budget-details">
-                <p>Limit: {{ budget.total_expense_limit }} {{ user.currency.symbol }}</p>
-                <p>Spent: {{ budget_spent }} {{ user.currency.symbol }}</p>
-                <p>Remaining: {{ budget_remaining }} {{ user.currency.symbol }}</p>
+                <p>{% trans "Limit" %}: {{ budget.total_expense_limit }} {{ user.currency.symbol }}</p>
+                <p>{% trans "Spent" %}: {{ budget_spent }} {{ user.currency.symbol }}</p>
+                <p>{% trans "Remaining" %}: {{ budget_remaining }} {{ user.currency.symbol }}</p>
                 <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="width: {{ budget_percentage|default:0 }}%;"></div>
+                    <div class="progress-bar-fill" style="width: {{ budget_percentage|stringformat:".2f" }}%;"></div>
                 </div>
                 <p class="progress-text">{{ budget_percentage|floatformat:1 }}%</p>
             </div>
 
-            <h3>Expenses by Category</h3>
+            <h3>{% trans "Expenses by Category" %}</h3>
             {% if budget_expense_by_category %}
             {% for item in budget_expense_by_category %}
                 <div class="category-progress">
-                <strong>{{ item.category__name|default:'Other' }}</strong>
+                <strong>{{ item.category__name|default:_('Other') }}</strong>
                 <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="width: {{ item.usage_percent|floatformat:1 }}%;"></div>
+                    <div class="progress-bar-fill" style="width: {{ item.usage_percent|stringformat:".2f" }}%;"></div>
                 </div>
-                <small>{{ item.total }} {{ user.currency.symbol }} used of {{ budget.limit }} {{ user.currency.symbol }}</small>
+                <small>{% blocktrans with total=item.total limit=item.limit symbol=user.currency.symbol %}{{ total }} {{ symbol }} used of {{ limit }} {{ symbol }}{% endblocktrans %}</small>
                 </div>
             {% endfor %}
             {% else %}
-            <p>No expense data by category.</p>
+            <p>{% trans "No expense data by category." %}</p>
             {% endif %}
 
         </div>
@@ -85,70 +87,66 @@
     <!-- Формы для создания аккаунта и бюджета -->
     <div class="forms-section">
         <div class="form-container">
-            <h3>Create New Account</h3>
+            <h3>{% trans "Create New Account" %}</h3>
             <form method="post" action="{% url 'transaction:account-create' %}">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="account_name">Account Name:</label>
+                    <label for="account_name">{% trans "Account Name" %}:</label>
                     <input type="text" name="name" id="account_name" required class="form-control">
                 </div>
                 <div class="form-group">
-                    <label for="account_type">Account Type:</label>
+                    <label for="account_type">{% trans "Account Type" %}:</label>
                     <select name="account_type" id="account_type" required class="form-control">
-                        <option value="BANK">Bank Account</option>
-                        <option value="CASH">Cash</option>
-                        <option value="CREDIT_CARD">Credit Card</option>
-                        <option value="INVESTMENT">Investment Account</option>
-                        <option value="SAVINGS">Savings Account</option>
-                        <option value="WALLET">Digital Wallet</option>
+                        <option value="BANK">{% trans "Bank Account" %}</option>
+                        <option value="CASH">{% trans "Cash" %}</option>
+                        <option value="CREDIT_CARD">{% trans "Credit Card" %}</option>
+                        <option value="INVESTMENT">{% trans "Investment Account" %}</option>
+                        <option value="SAVINGS">{% trans "Savings Account" %}</option>
+                        <option value="WALLET">{% trans "Digital Wallet" %}</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="initial_balance">Initial Balance:</label>
+                    <label for="initial_balance">{% trans "Initial Balance" %}:</label>
                     <input type="number" name="initial_balance" id="initial_balance" step="0.01" required class="form-control">
                 </div>
                 <div class="form-group">
-                    <label for="currency">Currency:</label>
+                    <label for="currency">{% trans "Currency" %}:</label>
                     <input type="text" name="currency" id="currency" maxlength="3" value="USD" required class="form-control">
                 </div>
-                <button type="submit" class="btn btn-primary">Create Account</button>
+                <button type="submit" class="btn btn-primary">{% trans "Create Account" %}</button>
             </form>
         </div>
 
         <div class="form-container">
-            <h3>Create New Budget</h3>
+            <h3>{% trans "Create New Budget" %}</h3>
             <form method="get" action="{% url 'transaction:budget-create' %}">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="budget_name">Budget Name:</label>
+                    <label for="budget_name">{% trans "Budget Name" %}:</label>
                     <input type="text" name="name" id="budget_name" required class="form-control">
                 </div>
                 <div class="form-group">
-                    <label for="period_type">Period Type:</label>
+                    <label for="period_type">{% trans "Period Type" %}:</label>
                     <select name="period_type" id="period_type" required class="form-control">
-                        <option value="MONTHLY">Monthly</option>
-                        <option value="QUARTERLY">Quarterly</option>
-                        <option value="YEARLY">Yearly</option>
-                        <option value="CUSTOM">Custom Period</option>
+                        <option value="MONTHLY">{% trans "Monthly" %}</option>
+                        <option value="QUARTERLY">{% trans "Quarterly" %}</option>
+                        <option value="YEARLY">{% trans "Yearly" %}</option>
+                        <option value="CUSTOM">{% trans "Custom Period" %}</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="start_date">Start Date:</label>
+                    <label for="start_date">{% trans "Start Date" %}:</label>
                     <input type="date" name="start_date" id="start_date" required class="form-control">
                 </div>
                 <div class="form-group">
-                    <label for="end_date">End Date:</label>
+                    <label for="end_date">{% trans "End Date" %}:</label>
                     <input type="date" name="end_date" id="end_date" required class="form-control">
                 </div>
                 <div class="form-group">
-                    <label for="total_income_limit">Total Income Limit (optional):</label>
-                    <input type="number" name="total_income_limit" id="total_income_limit" step="0.01" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="total_expense_limit">Total Expense Limit:</label>
+                    <label for="total_expense_limit">{% trans "Total Expense Limit" %}:</label>
                     <input type="number" name="total_expense_limit" id="total_expense_limit" step="0.01" required class="form-control">
                 </div>
-                <button type="submit" class="btn btn-primary">Create Budget</button>
+                <button type="submit" class="btn btn-primary">{% trans "Create Budget" %}</button>
             </form>
         </div>
     </div>
@@ -161,13 +159,13 @@
                 labels: {{ labels|safe }},
                 datasets: [
                     {
-                        label: 'Income',
+                        label: '{% trans "Income" %}',
                         data: {{ income_data|safe }},
                         borderColor: '#4CAF50',
                         fill: false
                     },
                     {
-                        label: 'Expense',
+                        label: '{% trans "Expense" %}',
                         data: {{ expense_data|safe }},
                         borderColor: '#F44336',
                         fill: false
@@ -179,8 +177,8 @@
                 maintainAspectRatio: false,
                 responsive: true,
                 scales: {
-                    x: { title: { display: true, text: 'Date' } },
-                    y: { type: 'logarithmic', title: { display: true, text: 'Sum' } }
+                    x: { title: { display: true, text: '{% trans "Date" %}' } },
+                    y: { type: 'logarithmic', title: { display: true, text: '{% trans "Sum" %}' } }
                 }
             }
         });
