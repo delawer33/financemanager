@@ -13,9 +13,15 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = 'Generate random transactions for user with id=2 for the last 2 months'
+    help = 'Generate random transactions for a user for the last 2 months'
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            '--user-id',
+            type=int,
+            required=True,
+            help='ID of the user to generate transactions for',
+        )
         parser.add_argument(
             '--count',
             type=int,
@@ -24,7 +30,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        user_id = 2
+        user_id = options['user_id']
         count = options['count']
         
         try:

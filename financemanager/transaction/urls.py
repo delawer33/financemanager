@@ -26,6 +26,7 @@ urlpatterns = [
     path('budgets/', views.BudgetListView.as_view(), name='budget-list'),
     path('budgets/create/', views.BudgetCreateView.as_view(), name='budget-create'),
     path('budgets/<int:pk>/', views.BudgetDetailView.as_view(), name='budget-detail'),
+    path('budgets/<int:pk>/edit/', views.BudgetUpdateView.as_view(), name='budget-update'),
     path('budgets/<int:pk>/delete/', views.budget_delete, name='budget-delete'),
     
     path('api/account/<int:account_id>/balance/', views.get_account_balance, name='account-balance-api'),
