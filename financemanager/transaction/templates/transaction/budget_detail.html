@@ -6,46 +6,342 @@
 {% endblock %}
 
 {% block body %}
-    <h2>{{ budget.name }}</h2>
-    <p><strong>{% trans "Period" %}:</strong> {{ budget.start_date }} — {{ budget.end_date }}</p>
-    <p><strong>{% trans "Total Expense Limit" %}:</strong> {{ budget.total_expense_limit }}</p>
-    <p><strong>{% trans "Spent" %}:</strong> {{ spent_amount }}</p>
-    <p><strong>{% trans "Income" %}:</strong> {{ income_amount }}</p>
-    <p><strong>{% trans "Remaining" %}:</strong> {{ remaining_budget }}</p>
+    <div class="budget-detail">
+        <div class="budget-header">
+            <h2>{{ budget.name }}</h2>
+            <div class="budget-actions">
+                <a href="{% url 'transaction:budget-update' budget.pk %}" class="btn btn-primary">{% trans "Edit Budget" %}</a>
+                <a href="{% url 'transaction:budget-list' %}" class="btn btn-secondary">{% trans "Back to List" %}</a>
+            </div>
+        </div>
 
-    <h3>{% trans "Category Limits" %}</h3>
-    {% if category_progress %}
-        <ul>
-        {% for item in category_progress %}
-            <li>
-                <strong>{{ item.limit.category.translated_name }}:</strong>
-                {% trans "limit" %} {{ item.limit.limit_amount }},
-                {% trans "spent" %} {{ item.spent }},
-                {% trans "remaining" %} {{ item.remaining }},
-                {% if item.over_budget %}<span style="color:red;">{% trans "Over limit!" %}</span>{% endif %}
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>{% trans "No category limits set." %}</p>
-    {% endif %}
+        <div class="budget-info">
+            <div class="info-card">
+                <h3>{% trans "Budget Information" %}</h3>
+                <p><strong>{% trans "Period Type" %}:</strong> {{ budget.get_period_type_display }}</p>
+                <p><strong>{% trans "Period" %}:</strong> {{ budget.start_date|date:"F d, Y" }} — {{ budget.end_date|date:"F d, Y" }}</p>
+                <p><strong>{% trans "Total Expense Limit" %}:</strong> {{ budget.total_expense_limit }} {{ user.currency.symbol }}</p>
+            </div>
 
-    <h3>{% trans "Transactions in Budget Period" %}</h3>
-    {% if transactions %}
-        <ul>
-            {% for t in transactions %}
-            <li>
-                {{ t.date }} |
-                {{ t.category.translated_name|default:_("No Category") }} |
-                {{ t.amount }} |
-                {{ t.type }} |
-                {{ t.description }}
-            </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>{% trans "No transactions in the budget period." %}</p>
-    {% endif %}
+            <div class="info-card">
+                <h3>{% trans "Budget Progress" %}</h3>
+                <p><strong>{% trans "Spent" %}:</strong> <span class="amount spent">{{ spent_amount }} {{ user.currency.symbol }}</span></p>
+                <p><strong>{% trans "Income" %}:</strong> <span class="amount income">{{ income_amount }} {{ user.currency.symbol }}</span></p>
+                <p><strong>{% trans "Remaining" %}:</strong> <span class="amount {% if remaining_budget < 0 %}over-budget{% else %}remaining{% endif %}">{{ remaining_budget }} {{ user.currency.symbol }}</span></p>
+                {% if budget.total_expense_limit %}
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {% if budget_percentage > 100 %}100{% else %}{{ budget_percentage|floatformat:0 }}{% endif %}%; background-color: {% if budget_percentage > 100 %}var(--danger){% else %}var(--success){% endif %};"></div>
+                        <span class="progress-text">{{ budget_percentage|floatformat:1 }}%</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
 
-    <a href="{% url 'transaction:budget-list' %}" class="btn btn-secondary">{% trans "Back to List" %}</a>
+        <div class="category-limits-section">
+            <h3>{% trans "Category Limits" %}</h3>
+            {% if category_progress %}
+                <div class="category-limits-list">
+                    {% for item in category_progress %}
+                        <div class="category-limit-item">
+                            <div class="category-info">
+                                <strong>{{ item.limit.category.translated_name }}</strong>
+                                <div class="limit-details">
+                                    <span>{% trans "Limit" %}: {{ item.limit.limit_amount }} {{ user.currency.symbol }}</span>
+                                    <span>{% trans "Spent" %}: {{ item.spent }} {{ user.currency.symbol }}</span>
+                                    <span>{% trans "Remaining" %}: {{ item.remaining }} {{ user.currency.symbol }}</span>
+                                </div>
+                            </div>
+                            <div class="category-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {% if item.percentage > 100 %}100{% else %}{{ item.percentage|floatformat:0 }}{% endif %}%; background-color: {% if item.over_budget %}var(--danger){% else %}var(--success){% endif %};"></div>
+                                    <span class="progress-text">{{ item.percentage|floatformat:1 }}%</span>
+                                </div>
+                                {% if item.over_budget %}
+                                    <span class="over-budget-badge">{% trans "Over limit!" %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-message">{% trans "No category limits set." %}</p>
+            {% endif %}
+        </div>
+
+        <div class="transactions-section">
+            <h3>{% trans "Transactions in Budget Period" %}</h3>
+            {% if transactions %}
+                <div class="transactions-list">
+                    {% for t in transactions %}
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <span class="date">{{ t.date|date:"M d, Y" }}</span>
+                                <span class="category">{{ t.category.translated_name|default:_("No Category") }}</span>
+                                <span class="description">{{ t.description|default:"-" }}</span>
+                            </div>
+                            <div class="transaction-amount {% if t.type == 'INCOME' %}income{% else %}expense{% endif %}">
+                                {% if t.type == 'INCOME' %}+{% else %}-{% endif %}{{ t.amount }} {{ user.currency.symbol }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-message">{% trans "No transactions in the budget period." %}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <style>
+        .budget-detail {
+            padding: 2rem;
+        }
+
+        .budget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .budget-header h2 {
+            margin: 0;
+            color: var(--gray-800);
+        }
+
+        .budget-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .budget-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            background-color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .info-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--gray-800);
+        }
+
+        .info-card p {
+            margin-bottom: 0.75rem;
+            color: var(--gray-700);
+        }
+
+        .amount {
+            font-weight: 600;
+        }
+
+        .amount.spent {
+            color: var(--danger);
+        }
+
+        .amount.income {
+            color: var(--success);
+        }
+
+        .amount.remaining {
+            color: var(--success);
+        }
+
+        .amount.over-budget {
+            color: var(--danger);
+        }
+
+        .progress-bar {
+            position: relative;
+            width: 100%;
+            height: 24px;
+            background-color: var(--gray-200);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .category-limits-section {
+            margin-bottom: 2rem;
+        }
+
+        .category-limits-section h3 {
+            margin-bottom: 1rem;
+            color: var(--gray-800);
+        }
+
+        .category-limits-list {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: white;
+        }
+
+        .category-limit-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-limit-item:last-child {
+            border-bottom: none;
+        }
+
+        .category-info {
+            flex: 1;
+        }
+
+        .category-info strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
+        }
+
+        .limit-details {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--gray-600);
+        }
+
+        .category-progress {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+            min-width: 200px;
+        }
+
+        .over-budget-badge {
+            background-color: var(--danger);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .transactions-section {
+            margin-top: 2rem;
+        }
+
+        .transactions-section h3 {
+            margin-bottom: 1rem;
+            color: var(--gray-800);
+        }
+
+        .transactions-list {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: white;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .date {
+            font-weight: 600;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .category {
+            color: var(--gray-800);
+        }
+
+        .description {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .transaction-amount.income {
+            color: var(--success);
+        }
+
+        .transaction-amount.expense {
+            color: var(--danger);
+        }
+
+        .empty-message {
+            color: var(--gray-600);
+            font-style: italic;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray-500);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray-600);
+        }
+    </style>
 {% endblock %}

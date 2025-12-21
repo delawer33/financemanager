@@ -10,6 +10,7 @@ from django.db.models import Q, Sum
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from datetime import datetime, timedelta
 from decimal import Decimal
 
@@ -142,10 +143,12 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
             context['category_limits'] = BudgetCategoryLimitFormSet(
                 self.request.POST,
                 prefix='category_limits',
+                user=self.request.user
             )
         else:
             context['category_limits'] = BudgetCategoryLimitFormSet(
                 prefix='category_limits',
+                user=self.request.user
             )
         context['categories'] = Category.objects.filter(
             Q(is_system=True) | Q(user=self.request.user),
@@ -154,19 +157,50 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
         return context
     
     def form_valid(self, form):
-        context = self.get_context_data()
-        category_limits = context['category_limits']
-        print(category_limits.errors)
         form.instance.user = self.request.user
+        self.object = form.save()
+        
+        if self.request.method == 'POST':
+            category_limits = BudgetCategoryLimitFormSet(
+                self.request.POST,
+                instance=self.object,
+                prefix='category_limits',
+                user=self.request.user
+            )
+        else:
+            category_limits = BudgetCategoryLimitFormSet(
+                instance=self.object,
+                prefix='category_limits',
+                user=self.request.user
+            )
         
         if category_limits.is_valid():
-            self.object = form.save()
-            category_limits.instance = self.object
             category_limits.save()
-            messages.success(self.request, 'Budget created successfully!')
+            messages.success(self.request, _('Budget created successfully!'))
             return super().form_valid(form)
         else:
+            context = self.get_context_data()
+            context['category_limits'] = category_limits
             return self.render_to_response(context)
+
+
+class BudgetUpdateView(LoginRequiredMixin, UpdateView):
+    model = Budget
+    form_class = BudgetForm
+    template_name = 'transaction/budget_form.html'
+    success_url = reverse_lazy('transaction:budget-list')
+    
+    def get_queryset(self):
+        return Budget.objects.filter(user=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.filter(
+            Q(is_system=True) | Q(user=self.request.user),
+            type=Type.OUTCOME
+        ).order_by('name')
+        return context
+
 
 
 class BudgetDetailView(LoginRequiredMixin, DetailView):

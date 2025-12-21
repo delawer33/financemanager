@@ -1,8 +1,9 @@
 from django import forms
 from django.utils import timezone
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet
+from django.db.models import Q
 
-from .models import Transaction, Category, RecurringTransaction, Account, Budget, BudgetCategoryLimit
+from .models import Transaction, Category, RecurringTransaction, Account, Budget, BudgetCategoryLimit, Type
 
 
 class TransactionCreateForm(forms.ModelForm):
@@ -117,8 +118,27 @@ class BudgetForm(forms.ModelForm):
         }
 
 
+class BudgetCategoryLimitFormSet(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        # Ограничиваем queryset категорий только OUTCOME
+        user = self.instance.user if self.instance and self.instance.user else self.user
+        if user:
+            category_queryset = Category.objects.filter(
+                Q(is_system=True) | Q(user=user),
+                type=Type.OUTCOME
+            ).order_by('name')
+        else:
+            category_queryset = Category.objects.filter(type=Type.OUTCOME).order_by('name')
+        
+        for form in self.forms:
+            form.fields['category'].queryset = category_queryset
+
+
 BudgetCategoryLimitFormSet = inlineformset_factory(
     Budget, BudgetCategoryLimit,
+    formset=BudgetCategoryLimitFormSet,
     fields=['category', 'limit_amount'],
     extra=0,
     can_delete=True
