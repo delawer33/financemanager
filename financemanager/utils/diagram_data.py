@@ -4,6 +4,7 @@ from django.db.models import Sum, Count
 from django.db.models.functions import TruncDate
 from django.db.models import CharField
 from django.db.models.functions import Cast
+from transaction.models import Category
 
 
 def period_stats(qs):
@@ -33,9 +34,27 @@ def period_stats(qs):
         elif t['type'] == 'OUTCOME':
             expense_data[index] = float(t['total'])
 
-    expense_categories = qs.filter(
+    expense_categories_raw = qs.filter(
         type='OUTCOME',
-    ).values('category__name').annotate(total=Sum('amount'))
+    ).values('category__name', 'category__id').annotate(total=Sum('amount'))
+    
+    # Обрабатываем переводы для категорий
+    expense_categories = []
+    for item in expense_categories_raw:
+        category_name = item['category__name']
+        if category_name and item['category__id']:
+            try:
+                category = Category.objects.get(id=item['category__id'])
+                translated_name = category.translated_name
+            except Category.DoesNotExist:
+                translated_name = category_name
+        else:
+            translated_name = category_name or 'Other'
+        
+        expense_categories.append({
+            'category__name': translated_name,
+            'total': item['total']
+        })
 
     return {
         'total_income': total_income,
@@ -67,13 +86,18 @@ def weekday_to_number(weekday):
 
 
 def expense_frequency_data(qs):
-    qs = qs.filter(type="OUTCOME").values('category__name').annotate(count=Count('id'))
+    qs = qs.filter(type="OUTCOME").values('category__name', 'category__id').annotate(count=Count('id'))
     expense_frequency_categories = []
     expense_frequency_values = []
 
     for t in qs:
-        if t['category__name']:
-            expense_frequency_categories.append(t['category__name'])
+        if t['category__name'] and t['category__id']:
+            try:
+                category = Category.objects.get(id=t['category__id'])
+                translated_name = category.translated_name
+            except Category.DoesNotExist:
+                translated_name = t['category__name']
+            expense_frequency_categories.append(translated_name)
         else:
             expense_frequency_categories.append('Other')
 
@@ -88,17 +112,18 @@ def expense_frequency_data(qs):
 def get_data_for_heatmap(qs):
     heatmap_list = []
     weeks_names_for_heatmap = []
-    hm_qs = qs.order_by('date').filter(type="OUTCOME")
-    hm_data = [
+    hm_data = qs.filter(type="OUTCOME").order_by('date').values('date', 'amount')
+    
+    data_list = [
         {
-            'date': t.date,
-            'amount': float(t.amount)
+            'date': item['date'],
+            'amount': float(item['amount'])
         }
-        for t in hm_qs
+        for item in hm_data
     ]
 
-    if hm_data:
-        df = pd.DataFrame(hm_data)
+    if data_list:
+        df = pd.DataFrame(data_list)
         df['weekday'] = pd.to_datetime(df['date']).dt.day_name()
         df['week'] = pd.to_datetime(df['date']).dt.isocalendar().week
         df['year'] = pd.to_datetime(df['date']).dt.isocalendar().year
@@ -140,6 +165,8 @@ def get_data_for_heatmap(qs):
 
 
 def extended_period_stats(qs):
+    qs = qs.select_related('category', 'account', 'user')
+    
     data = period_stats(qs)
     data.update(get_data_for_heatmap(qs))
     data.update(expense_frequency_data(qs))

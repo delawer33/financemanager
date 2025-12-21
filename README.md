@@ -6,10 +6,11 @@ Django-приложение для управления личными фина�
 
 - **Backend**: Django 5.1.6
 - **Database**: PostgreSQL 15
-- **Cache & Task Queue**: Redis 7
+- **Cache**: Redis 7
 - **Task Processing**: Celery 5.4
 - **API**: Django REST Framework
 - **Containerization**: Docker & Docker Compose
+- **Frontend**: HTML, CSS, JS, HTMX, ChartJS
 
 ## Требования
 

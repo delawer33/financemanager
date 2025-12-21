@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="form-container">
     <form 
         method="GET" 
@@ -9,47 +10,47 @@
         >
 
         <div class="form-group">
-            <label for="id_account">Account</label>
+            <label for="id_account">{% trans "Account" %}</label>
             {{ filter.form.account }}
         </div>        
 
         <div class="form-group">
-            <label for="id_type">Type</label>
+            <label for="id_type">{% trans "Type" %}</label>
             <select name="type" id="id_type" hx-vals='{"category":"{{ request.GET.category }}"}' hx-trigger="load, change" hx-get="{% url 'transaction:get-categories-for-filter' %}" hx-target="#id_category">
                 <option value="Notype" {% if request.GET.type == 'Notype' %}selected{% endif %}>---------</option>
-                <option value="OUTCOME" {% if request.GET.type == 'OUTCOME' %}selected{% endif %}>Outcome</option>
-                <option value="INCOME" {% if request.GET.type == 'INCOME' %}selected{% endif %}>Income</option>
+                <option value="OUTCOME" {% if request.GET.type == 'OUTCOME' %}selected{% endif %}>{% trans "Outcome" %}</option>
+                <option value="INCOME" {% if request.GET.type == 'INCOME' %}selected{% endif %}>{% trans "Income" %}</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="id_category">Category</label>
+            <label for="id_category">{% trans "Category" %}</label>
             <select name="category" id="id_category">
                 {% include 'transaction/category_dropdown.html' %}
             </select>
         </div>
 
         <div class="form-group">
-            <label for="id_date_min">From Date</label>
+            <label for="id_date_min">{% trans "From Date" %}</label>
             {{ filter.form.date_from }}
         </div>
 
         <div class="form-group">
-            <label for="id_date_max">To Date</label>
+            <label for="id_date_max">{% trans "To Date" %}</label>
             {{ filter.form.date_to}}
         </div>
 
         <div class="form-group">
-            <label for="id_sort_by">Sort By</label>
+            <label for="id_sort_by">{% trans "Sort By" %}</label>
             {{ filter.form.sort_by }}
         </div>
 
         <div class="form-group">
-            <label for="id_description">Description</label>
+            <label for="id_description">{% trans "Description" %}</label>
             {{ filter.form.description }}
         </div>
 
         {% include 'includes/form_errors.html' %}
-        <button type="submit"><i class="fas fa-filter"></i> Filter</button>
+        <button type="submit"><i class="fas fa-filter"></i> {% trans "Filter" %}</button>
     </form>
 </div>

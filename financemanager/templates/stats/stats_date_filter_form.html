@@ -1,16 +1,17 @@
+{% load i18n %}
 <div class="filter-form">
     <form method="GET" action="" id="filter-form">
         <div class="form-group">
-            <label for="id_date_min">From Date</label>
+            <label for="id_date_min">{% trans "From Date" %}</label>
             {{ filter.form.date_from }}
         </div>
         <div class="form-group">
-            <label for="id_date_max">To Date</label>
+            <label for="id_date_max">{% trans "To Date" %}</label>
             {{ filter.form.date_to }}
         </div>
         {% include 'includes/form_errors.html' %}
         <button type="submit">
-            <i class="fas fa-calendar"></i> Apply Date Filter
+            <i class="fas fa-calendar"></i> {% trans "Apply Date Filter" %}
         </button>
     </form>
 </div>

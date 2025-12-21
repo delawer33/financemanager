@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        {% block title %}Finance Manager{% endblock %}
+        {% block title %} Finance Manager{% endblock %}
     </title>
     <!-- Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,66 +24,66 @@
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <header>
         <div class="header-content">
-            <h1 class="logo">Finance Manager</h1>
+            <h1 class="logo">{% trans "Finance Manager" %}</h1>
             <button id="mobile-menu-toggle" class="mobile-menu-toggle">
                 <i class="fas fa-bars"></i>
             </button>
             <nav class="nav">
                 {% if user.is_authenticated %}
                     <a href="{% url 'dashboard:dashboard' %}" class="nav-link">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                        <i class="fas fa-tachometer-alt"></i> {% trans "Dashboard" %}
                     </a>
 
                     <div class="dropdown">
                         <div onclick="dropdownShow('dropdown-content-transactions')" class="dropdown-text" tabindex="0">
-                            <i class="fas fa-exchange-alt"></i> Transactions
+                            <i class="fas fa-exchange-alt"></i> {% trans "Transactions" %}
                         </div>
                         <div id="dropdown-content-transactions" class="dropdown-content" tabindex="-1">
                             <a href="{% url 'transaction:create-trans' %}" class="nav-link">
-                                <i class="fas fa-plus-circle"></i> New transaction
+                                <i class="fas fa-plus-circle"></i> {% trans "New transaction" %}
                             </a>
                             <a href="{% url 'transaction:create-rec-trans' %}" class="nav-link">
-                                <i class="fas fa-redo"></i> New recurring transaction
+                                <i class="fas fa-redo"></i> {% trans "New recurring transaction" %}
                             </a>
                             <a href="{% url 'transaction:trans-list' %}" class="nav-link">
-                                <i class="fas fa-history"></i> History
+                                <i class="fas fa-history"></i> {% trans "History" %}
                             </a>
                         </div>
                     </div>
                     
                     <div class="dropdown">
                         <div onclick="dropdownShow('dropdown-content-accounts')" class="dropdown-text" tabindex="0">
-                            <i class="fas fa-university"></i> Accounts
+                            <i class="fas fa-university"></i> {% trans "Accounts" %}
                         </div>
                         <div id="dropdown-content-accounts" class="dropdown-content" tabindex="-1">
                             <a href="{% url 'transaction:account-create' %}" class="nav-link">
-                                <i class="fas fa-plus-circle"></i> Create Account
+                                <i class="fas fa-plus-circle"></i> {% trans "Create Account" %}
                             </a>
                             <a href="{% url 'transaction:account-list' %}" class="nav-link">
-                                <i class="fas fa-list"></i> My Accounts
+                                <i class="fas fa-list"></i> {% trans "My Accounts" %}
                             </a>
                         </div>
                     </div>
 
                     <div class="dropdown">
                         <div onclick="dropdownShow('dropdown-content-budget')" class="dropdown-text" tabindex="0">
-                            <i class="fas fa-wallet"></i> Budget
+                            <i class="fas fa-wallet"></i> {% trans "Budget" %}
                         </div>
                         <div id="dropdown-content-budget" class="dropdown-content" tabindex="-1">
                             <a href="{% url 'transaction:budget-create' %}" class="nav-link">
-                                <i class="fas fa-plus-circle"></i> Create Budget
+                                <i class="fas fa-plus-circle"></i> {% trans "Create Budget" %}
                             </a>
                             <a href="{% url 'transaction:budget-list' %}" class="nav-link">
-                                <i class="fas fa-list"></i> My Budgets
+                                <i class="fas fa-list"></i> {% trans "My Budgets" %}
                             </a>
                         </div>
                     </div>
 
                     <a href="{% url 'transaction:category' %}" class="nav-link">
-                        <i class="fas fa-tags"></i> Categories
+                        <i class="fas fa-tags"></i> {% trans "Categories" %}
                     </a>
                     <a href="{% url 'stats:stats' %}" class="nav-link">
-                        <i class="fas fa-chart-pie"></i> Statistics
+                        <i class="fas fa-chart-pie"></i> {% trans "Statistics" %}
                     </a>
                     
                     <div class="user-greeting">
@@ -92,15 +93,15 @@
                     <form action="{% url 'authapp:logout' %}" method="POST" class="logout-form">
                         {% csrf_token %}
                         <button class="logout-button">
-                            <i class="fas fa-sign-out-alt"></i> Logout
+                            <i class="fas fa-sign-out-alt"></i> {% trans "Logout" %}
                         </button>
                     </form>
                 {% else %}
                     <a href="{% url 'authapp:login' %}" class="nav-link btn btn-primary">
-                        <i class="fas fa-sign-in-alt"></i> Login
+                        <i class="fas fa-sign-in-alt"></i> {% trans "Login" %}
                     </a>
                     <a href="{% url 'authapp:register' %}" class="nav-link btn btn-outline">
-                        <i class="fas fa-user-plus"></i> Register
+                        <i class="fas fa-user-plus"></i> {% trans "Register" %}
                     </a>
                 {% endif %}
             </nav>
@@ -114,7 +115,7 @@
 
     <footer>
         <div class="footer-content">
-            <p>&copy; {% now "Y" %} Finance Manager. All rights reserved.</p>
+            <p>&copy; {% now "Y" %} {% trans "Finance Manager. All rights reserved." %}</p>
         </div>
     </footer>
 

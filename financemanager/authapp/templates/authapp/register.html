@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}
-	Register
+	{% trans "Register" %}
 {% endblock %}
 
 {% block body %}
@@ -10,31 +11,31 @@
         <form action="" method="POST">
             {% csrf_token %}
             <div class="form-group">
-                <label for="id_email">Email</label>
+                <label for="id_email">{% trans "Email" %}</label>
                 {{ form.email }}
             </div>
             <div class="form-group">
-                <label for="id_firstname">First name(not requiered)</label>
+                <label for="id_firstname">{% trans "First name" %} ({% trans "not required" %})</label>
                 {{ form.firstname }}
             </div>
             <div class="form-group">
-                <label for="id_lastname">Last name(not requiered)</label>
+                <label for="id_lastname">{% trans "Last name" %} ({% trans "not required" %})</label>
                 {{ form.lastname }}
             </div>
             <div class="form-group">
-                <label for="id_currency">Currency</label>
+                <label for="id_currency">{% trans "Currency" %}</label>
                 {{ form.currency }}
             </div>
             <div class="form-group">
-                <label for="id_password1">Password</label>
+                <label for="id_password1">{% trans "Password" %}</label>
                 {{ form.password1 }}
             </div>
             <div class="form-group">
-                <label for="id_password2">Confirm password</label>
+                <label for="id_password2">{% trans "Confirm password" %}</label>
                 {{ form.password2 }}
             </div>
             {% include 'includes/form_errors.html' %}
-            <button type="submit">Register</button>
+            <button type="submit">{% trans "Register" %}</button>
         </form>
     </div>
 

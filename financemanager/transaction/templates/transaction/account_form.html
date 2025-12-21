@@ -1,18 +1,19 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}
-    {% if object %}Edit Account{% else %}Create Account{% endif %}
+    {% if object %}{% trans "Edit Account" %}{% else %}{% trans "Create Account" %}{% endif %}
 {% endblock %}
 
 {% block body %}
     <div class="form-container">
-        <h2>{% if object %}Edit Account{% else %}Create New Account{% endif %}</h2>
+        <h2>{% if object %}{% trans "Edit Account" %}{% else %}{% trans "Create New Account" %}{% endif %}</h2>
         
         <form method="post">
             {% csrf_token %}
             
             <div class="form-group">
-                <label for="id_name">Account Name:</label>
+                <label for="id_name">{% trans "Account Name" %}:</label>
                 {{ form.name }}
                 {% if form.name.errors %}
                     <div class="error">{{ form.name.errors }}</div>
@@ -20,34 +21,36 @@
             </div>
 
             <div class="form-group">
-                <label for="id_account_type">Account Type:</label>
+                <label for="id_account_type">{% trans "Account Type" %}:</label>
                 {{ form.account_type }}
                 {% if form.account_type.errors %}
                     <div class="error">{{ form.account_type.errors }}</div>
                 {% endif %}
             </div>
 
+            {% if not object %}
             <div class="form-group">
-                <label for="id_initial_balance">Initial Balance:</label>
+                <label for="id_initial_balance">{% trans "Initial Balance" %}:</label>
                 {{ form.initial_balance }}
                 {% if form.initial_balance.errors %}
                     <div class="error">{{ form.initial_balance.errors }}</div>
                 {% endif %}
             </div>
+            {% endif %}
 
-            <div class="form-group">
-                <label for="id_currency">Currency:</label>
+            <!-- <div class="form-group">
+                <label for="id_currency">{% trans "Currency" %}:</label>
                 {{ form.currency }}
                 {% if form.currency.errors %}
                     <div class="error">{{ form.currency.errors }}</div>
                 {% endif %}
-            </div>
+            </div> -->
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
-                    {% if object %}Update Account{% else %}Create Account{% endif %}
+                    {% if object %}{% trans "Update Account" %}{% else %}{% trans "Create Account" %}{% endif %}
                 </button>
-                <a href="{% url 'transaction:account-list' %}" class="btn btn-secondary">Cancel</a>
+                <a href="{% url 'transaction:account-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
             </div>
         </form>
     </div>

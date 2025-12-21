@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% block title %}
-	Statistics
+	{% trans "Statistics" %}
 {% endblock %}
 
 {% block body %}
@@ -20,32 +20,32 @@
             <p class="income">{{ total_income }} {{ user.currency.symbol }}</p>
         </div>
         <div class="card">
-            <h3>Expense</h3>
+            <h3>{% trans "Expense" %}</h3>
             <p class="expense">{{ total_expense }} {{ user.currency.symbol }}</p>
         </div>
         <div class="card">
-            <h3>Balance</h3>
+            <h3>{% trans "Balance" %}</h3>
             <p class="balance">{{ balance }} {{ user.currency.symbol }}</p>
         </div>
     </div>
 
     <div class="charts">
         <div class="chart-container">
-            <h3>Income vs Expense</h3>
+            <h3>{% trans "Income vs Expense" %}</h3>
             <div>
                 <canvas id="incomeExpenseChart"></canvas>
             </div>
         </div>
 
         <div class="chart-container">
-            <h3>Expense Categories Frequency</h3>
+            <h3>{% trans "Expense Categories Frequency" %}</h3>
             <div>
                 <canvas id="expenseCateoriesFreqChart"></canvas>
             </div>
         </div>
 
         <div class="chart-container">
-            <h3>Activity Heatmap</h3>
+            <h3>{% trans "Activity Heatmap" %}</h3>
             <div id="heatMap" style="height:300px;"></div>
         </div>
     </div>
@@ -61,23 +61,23 @@
             hx-target="#transaction-list"
         >
             <div class="form-group">
-                <label for="id_type">Type</label>
+                <label for="id_type">{% trans "Type" %}</label>
                 <select name="type" id="id_type" hx-vals='{"category":"{{ request.GET.category }}"}' hx-trigger="load, change" hx-get="{% url 'transaction:get-categories-for-filter' %}" hx-target="#id_category">
                     <option value="Notype" {% if request.GET.type == 'Notype' %}selected{% endif %}>---------</option>
-                    <option value="OUTCOME" {% if request.GET.type == 'OUTCOME' %}selected{% endif %}>Outcome</option>
-                    <option value="INCOME" {% if request.GET.type == 'INCOME' %}selected{% endif %}>Income</option>
+                    <option value="OUTCOME" {% if request.GET.type == 'OUTCOME' %}selected{% endif %}>{% trans "Outcome" %}</option>
+                    <option value="INCOME" {% if request.GET.type == 'INCOME' %}selected{% endif %}>{% trans "Income" %}</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="id_category">Category</label>
+                <label for="id_category">{% trans "Category" %}</label>
                 <select name="category" id="id_category">
                     {% include 'transaction/category_dropdown.html' %}
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="id_sort_by">Sort by</label>
+                <label for="id_sort_by">{% trans "Sort by" %}</label>
                 {{ filter.form.sort_by }}
             </div>
         </form>
@@ -100,14 +100,14 @@
                 labels: {{ labels|safe }},
                 datasets: [
                     {
-                        label: 'Income',
+                        label: '{% trans "Income" %}',
                         data: {{ income_data|safe }},
                         borderColor: '#6366f1',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         fill: true
                     },
                     {
-                        label: 'Expense',
+                        label: '{% trans "Expense" %}',
                         data: {{ expense_data|safe }},
                         borderColor: 'rgb(230, 40, 40)',
                         backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -120,8 +120,8 @@
                 maintainAspectRatio: false,
                 responsive: true,
                 scales: {
-                    x: { title: { display: true, text: 'Date' } },
-                    y: { type: 'logarithmic', title: { display: true, text: 'Sum' } }
+                    x: { title: { display: true, text: '{% trans "Date" %}' } },
+                    y: { type: 'logarithmic', title: { display: true, text: '{% trans "Sum" %}' } }
                 }
             }
         });

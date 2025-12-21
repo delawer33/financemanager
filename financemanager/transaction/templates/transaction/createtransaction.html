@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}
-    New Transaction
+    {% trans "New Transaction" %}
 {% endblock %}
 
 {% block body %}
@@ -9,7 +10,7 @@
         {% csrf_token %}
 
         <div class="form-group">
-            <label for="id_account">Account</label>
+            <label for="id_account">{% trans "Account" %}</label>
             {{ form.account }}
             {% if form.account.errors %}
                 <div class="error">{{ form.account.errors }}</div>
@@ -33,21 +34,21 @@
         </div> -->
 
         <div class="form-group">
-            <label for="id_type">Type</label>
+            <label for="id_type">{% trans "Type" %}</label>
             <select name="type" id="id_type" hx-trigger="load, click" hx-get="{% url 'transaction:get-categories' %}" hx-target="#id_category">
-                <option value="OUTCOME">Outcome</option>
-                <option value="INCOME">Income</option>
+                <option value="OUTCOME">{% trans "Outcome" %}</option>
+                <option value="INCOME">{% trans "Income" %}</option>
             </select>
         </div>
         <div class="form-group">
-            <label for="id_category">Category</label>
+            <label for="id_category">{% trans "Category" %}</label>
             <select name="category" id="id_category">
 
             </select>
         </div>
 
         <div class="form-group">
-            <label for="id_date">Date</label>
+            <label for="id_date">{% trans "Date" %}</label>
             {{ form.date }}
             {% if form.date.errors %}
                 <div class="error">{{ form.date.errors }}</div>
@@ -55,7 +56,7 @@
         </div>
 
         <div class="form-group">
-            <label for="id_amount">Amount</label>
+            <label for="id_amount">{% trans "Amount" %}</label>
             {{ form.amount }}
             {% if form.amount.errors %}
                 <div class="error">{{ form.amount.errors }}</div>
@@ -63,14 +64,14 @@
         </div>
 
         <div class="form-group">
-            <label for="id_description">Description</label>
+            <label for="id_description">{% trans "Description" %}</label>
             {{ form.description }}
             {% if form.description.errors %}
                 <div class="error">{{ form.description.errors }}</div>
             {% endif %}
         </div>
 
-        <button type="submit" class="btn btn-primary">Create Transaction</button>
+        <button type="submit" class="btn btn-primary">{% trans "Create Transaction" %}</button>
     </form>
 
 {% endblock %}

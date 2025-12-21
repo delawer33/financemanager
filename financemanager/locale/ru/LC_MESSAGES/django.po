@@ -1,0 +1,751 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-21 07:54+0000\n"
+"PO-Revision-Date: 2025-12-21 07:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: authapp/templates/authapp/login.html:5
+#: authapp/templates/authapp/login.html:27 templates/base.html:101
+msgid "Login"
+msgstr "Вход"
+
+#: authapp/templates/authapp/login.html:14
+#: authapp/templates/authapp/register.html:14
+msgid "Email"
+msgstr "Электронная почта"
+
+#: authapp/templates/authapp/login.html:18
+#: authapp/templates/authapp/register.html:30
+msgid "Password"
+msgstr "Пароль"
+
+#: authapp/templates/authapp/login.html:22
+msgid "Forgot Password?"
+msgstr "Забыли пароль?"
+
+#: authapp/templates/authapp/password_reset_form.html:5
+#: authapp/templates/authapp/password_reset_form.html:9
+msgid "Reset Password"
+msgstr "Сброс пароля"
+
+#: authapp/templates/authapp/password_reset_form.html:5 templates/base.html:27
+msgid "Finance Manager"
+msgstr "Финансовый менеджер"
+
+#: authapp/templates/authapp/password_reset_form.html:14
+msgid "Email Address"
+msgstr "Адрес электронной почты"
+
+#: authapp/templates/authapp/password_reset_form.html:23
+msgid "Send Reset Link"
+msgstr "Отправить ссылку для сброса"
+
+#: authapp/templates/authapp/register.html:5
+#: authapp/templates/authapp/register.html:38 templates/base.html:104
+msgid "Register"
+msgstr "Регистрация"
+
+#: authapp/templates/authapp/register.html:18
+msgid "First name"
+msgstr "Имя"
+
+#: authapp/templates/authapp/register.html:18
+#: authapp/templates/authapp/register.html:22
+msgid "not required"
+msgstr "не обязательно"
+
+#: authapp/templates/authapp/register.html:22
+msgid "Last name"
+msgstr "Фамилия"
+
+#: authapp/templates/authapp/register.html:26
+#: dashboard/templates/dashboard/dashboard.html:113
+#: transaction/templates/transaction/account_form.html:40
+msgid "Currency"
+msgstr "Валюта"
+
+#: authapp/templates/authapp/register.html:34
+msgid "Confirm password"
+msgstr "Подтвердите пароль"
+
+#: dashboard/templates/dashboard/dashboard.html:5 templates/base.html:34
+msgid "Dashboard"
+msgstr "Панель управления"
+
+#: dashboard/templates/dashboard/dashboard.html:13
+msgid "Income (30 days)"
+msgstr "Доходы (30 дней)"
+
+#: dashboard/templates/dashboard/dashboard.html:17
+msgid "Expense (30 days)"
+msgstr "Расходы (30 дней)"
+
+#: dashboard/templates/dashboard/dashboard.html:21
+msgid "Total Balance"
+msgstr "Общий баланс"
+
+#: dashboard/templates/dashboard/dashboard.html:26
+#: transaction/templates/transaction/account_list.html:11
+msgid "Your Accounts"
+msgstr "Ваши счета"
+
+#: dashboard/templates/dashboard/dashboard.html:37
+msgid "No accounts found."
+msgstr "Счета не найдены."
+
+#: dashboard/templates/dashboard/dashboard.html:42
+msgid "Current Budget"
+msgstr "Текущий бюджет"
+
+#: dashboard/templates/dashboard/dashboard.html:49
+msgid "Limit"
+msgstr "Лимит"
+
+#: dashboard/templates/dashboard/dashboard.html:50
+#: transaction/templates/transaction/budget_detail.html:12
+msgid "Spent"
+msgstr "Потрачено"
+
+#: dashboard/templates/dashboard/dashboard.html:51
+#: transaction/templates/transaction/budget_detail.html:14
+msgid "Remaining"
+msgstr "Осталось"
+
+#: dashboard/templates/dashboard/dashboard.html:58
+msgid "Expenses by Category"
+msgstr "Расходы по категориям"
+
+#: dashboard/templates/dashboard/dashboard.html:62
+msgid "Other"
+msgstr "Другое"
+
+#: dashboard/templates/dashboard/dashboard.html:66
+#, python-format
+msgid "%(total)s %(symbol)s used of %(limit)s %(symbol)s"
+msgstr "%(total)s %(symbol)s использовано из %(limit)s %(symbol)s"
+
+#: dashboard/templates/dashboard/dashboard.html:70
+msgid "No expense data by category."
+msgstr "Нет данных о расходах по категориям."
+
+#: dashboard/templates/dashboard/dashboard.html:90
+#: transaction/templates/transaction/account_form.html:10
+msgid "Create New Account"
+msgstr "Создать новый счет"
+
+#: dashboard/templates/dashboard/dashboard.html:94
+#: transaction/templates/transaction/account_form.html:16
+msgid "Account Name"
+msgstr "Название счета"
+
+#: dashboard/templates/dashboard/dashboard.html:98
+#: transaction/templates/transaction/account_form.html:24
+msgid "Account Type"
+msgstr "Тип счета"
+
+#: dashboard/templates/dashboard/dashboard.html:100 transaction/models.py:92
+msgid "Bank Account"
+msgstr "Банковский счет"
+
+#: dashboard/templates/dashboard/dashboard.html:101 transaction/models.py:93
+msgid "Cash"
+msgstr "Наличные"
+
+#: dashboard/templates/dashboard/dashboard.html:102 transaction/models.py:94
+msgid "Credit Card"
+msgstr "Кредитная карта"
+
+#: dashboard/templates/dashboard/dashboard.html:103 transaction/models.py:95
+msgid "Investment Account"
+msgstr "Инвестиционный счет"
+
+#: dashboard/templates/dashboard/dashboard.html:104 transaction/models.py:96
+msgid "Savings Account"
+msgstr "Сберегательный счет"
+
+#: dashboard/templates/dashboard/dashboard.html:105 transaction/models.py:97
+msgid "Digital Wallet"
+msgstr "Цифровой кошелек"
+
+#: dashboard/templates/dashboard/dashboard.html:109
+#: transaction/templates/transaction/account_detail.html:23
+#: transaction/templates/transaction/account_form.html:32
+msgid "Initial Balance"
+msgstr "Начальный баланс"
+
+#: dashboard/templates/dashboard/dashboard.html:116 templates/base.html:60
+#: transaction/templates/transaction/account_form.html:5
+#: transaction/templates/transaction/account_form.html:49
+msgid "Create Account"
+msgstr "Создать счет"
+
+#: dashboard/templates/dashboard/dashboard.html:121
+#: transaction/templates/transaction/budget_form.html:10
+#: transaction/templates/transaction/budget_list.html:11
+msgid "Create New Budget"
+msgstr "Создать новый бюджет"
+
+#: dashboard/templates/dashboard/dashboard.html:125
+#: transaction/templates/transaction/budget_form.html:16
+msgid "Budget Name"
+msgstr "Название бюджета"
+
+#: dashboard/templates/dashboard/dashboard.html:129
+#: transaction/templates/transaction/budget_form.html:24
+msgid "Period Type"
+msgstr "Тип периода"
+
+#: dashboard/templates/dashboard/dashboard.html:131 transaction/models.py:16
+#: transaction/models.py:136
+#: transaction/templates/transaction/budget_form.html:26
+msgid "Monthly"
+msgstr "Ежемесячно"
+
+#: dashboard/templates/dashboard/dashboard.html:132 transaction/models.py:137
+#: transaction/templates/transaction/budget_form.html:27
+msgid "Quarterly"
+msgstr "Ежеквартально"
+
+#: dashboard/templates/dashboard/dashboard.html:133 transaction/models.py:17
+#: transaction/models.py:138
+#: transaction/templates/transaction/budget_form.html:28
+msgid "Yearly"
+msgstr "Ежегодно"
+
+#: dashboard/templates/dashboard/dashboard.html:134 transaction/models.py:139
+#: transaction/templates/transaction/budget_form.html:29
+msgid "Custom Period"
+msgstr "Произвольный период"
+
+#: dashboard/templates/dashboard/dashboard.html:138
+#: transaction/templates/transaction/budget_form.html:33
+msgid "Start Date"
+msgstr "Дата начала"
+
+#: dashboard/templates/dashboard/dashboard.html:142
+#: transaction/templates/transaction/budget_form.html:37
+msgid "End Date"
+msgstr "Дата окончания"
+
+#: dashboard/templates/dashboard/dashboard.html:146
+#: transaction/templates/transaction/budget_detail.html:11
+#: transaction/templates/transaction/budget_form.html:42
+msgid "Total Expense Limit"
+msgstr "Общий лимит расходов"
+
+#: dashboard/templates/dashboard/dashboard.html:149 templates/base.html:74
+#: transaction/templates/transaction/budget_form.html:5
+#: transaction/templates/transaction/budget_form.html:105
+msgid "Create Budget"
+msgstr "Создать бюджет"
+
+#: dashboard/templates/dashboard/dashboard.html:162
+#: templates/stats/stats.html:19 templates/stats/stats.html:68
+#: templates/stats/stats.html:104 templates/transaction/create_category.html:18
+#: templates/transaction/create_recur_trans.html:26
+#: templates/transaction/transaction_list_filter_form.html:22
+#: templates/transaction/transaction_list_filter_form_for_stats.html:8
+#: transaction/models.py:9
+#: transaction/templates/transaction/budget_detail.html:13
+#: transaction/templates/transaction/createtransaction.html:40
+#: transaction/templates/transaction/transaction_list.html:16
+msgid "Income"
+msgstr "Доходы"
+
+#: dashboard/templates/dashboard/dashboard.html:168
+#: templates/stats/stats.html:23 templates/stats/stats.html:111
+msgid "Expense"
+msgstr "Расходы"
+
+#: dashboard/templates/dashboard/dashboard.html:180
+#: templates/stats/stats.html:124
+#: templates/transaction/transaction_list_part.html:7
+#: transaction/templates/transaction/createtransaction.html:51
+msgid "Date"
+msgstr "Дата"
+
+#: dashboard/templates/dashboard/dashboard.html:181
+#: templates/stats/stats.html:125
+msgid "Sum"
+msgstr "Сумма"
+
+#: templates/base.html:39
+msgid "Transactions"
+msgstr "Транзакции"
+
+#: templates/base.html:43 templates/transaction/create_recur_trans.html:5
+msgid "New transaction"
+msgstr "Новая транзакция"
+
+#: templates/base.html:46
+msgid "New recurring transaction"
+msgstr "Новая повторяющаяся транзакция"
+
+#: templates/base.html:49 templates/transaction/transaction_list.html:5
+#: transaction/templates/transaction/transaction_list.html:5
+msgid "History"
+msgstr "История"
+
+#: templates/base.html:56 transaction/templates/transaction/account_list.html:5
+msgid "Accounts"
+msgstr "Счета"
+
+#: templates/base.html:63
+msgid "My Accounts"
+msgstr "Мои счета"
+
+#: templates/base.html:70
+msgid "Budget"
+msgstr "Бюджет"
+
+#: templates/base.html:77
+msgid "My Budgets"
+msgstr "Мои бюджеты"
+
+#: templates/base.html:83 templates/transaction/create_category.html:5
+msgid "Categories"
+msgstr "Категории"
+
+#: templates/base.html:86 templates/stats/stats.html:6
+#: transaction/templates/transaction/account_detail.html:29
+msgid "Statistics"
+msgstr "Статистика"
+
+#: templates/base.html:96
+msgid "Logout"
+msgstr "Выход"
+
+#: templates/base.html:118
+msgid "Finance Manager. All rights reserved."
+msgstr "Финансовый менеджер. Все права защищены."
+
+#: templates/stats/stats.html:27
+msgid "Balance"
+msgstr "Баланс"
+
+#: templates/stats/stats.html:34
+msgid "Income vs Expense"
+msgstr "Доходы против расходов"
+
+#: templates/stats/stats.html:41
+msgid "Expense Categories Frequency"
+msgstr "Частота расходов по категориям"
+
+#: templates/stats/stats.html:48
+msgid "Activity Heatmap"
+msgstr "Карта активности"
+
+#: templates/stats/stats.html:64 templates/transaction/create_category.html:15
+#: templates/transaction/create_recur_trans.html:23
+#: templates/transaction/recur_trans_list.html:5
+#: templates/transaction/transaction_list_filter_form.html:18
+#: templates/transaction/transaction_list_filter_form_for_stats.html:4
+#: transaction/templates/transaction/account_detail.html:21
+#: transaction/templates/transaction/createtransaction.html:37
+#: transaction/templates/transaction/transaction_list.html:12
+msgid "Type"
+msgstr "Тип"
+
+#: templates/stats/stats.html:67 templates/transaction/create_category.html:17
+#: templates/transaction/create_recur_trans.html:25
+#: templates/transaction/transaction_list_filter_form.html:21
+#: templates/transaction/transaction_list_filter_form_for_stats.html:7
+#: transaction/models.py:10
+#: transaction/templates/transaction/createtransaction.html:39
+#: transaction/templates/transaction/transaction_list.html:15
+msgid "Outcome"
+msgstr "Расход"
+
+#: templates/stats/stats.html:73
+#: templates/transaction/create_recur_trans.html:31
+#: templates/transaction/recur_trans_list.html:6
+#: templates/transaction/transaction_list_filter_form.html:27
+#: templates/transaction/transaction_list_filter_form_for_stats.html:10
+#: templates/transaction/transaction_list_part.html:5
+#: transaction/templates/transaction/createtransaction.html:44
+#: transaction/templates/transaction/transaction_list.html:18
+msgid "Category"
+msgstr "Категория"
+
+#: templates/stats/stats.html:80
+msgid "Sort by"
+msgstr "Сортировать по"
+
+#: templates/stats/stats_date_filter_form.html:5
+#: templates/transaction/transaction_list_filter_form.html:34
+msgid "From Date"
+msgstr "С даты"
+
+#: templates/stats/stats_date_filter_form.html:9
+#: templates/transaction/transaction_list_filter_form.html:39
+msgid "To Date"
+msgstr "По дату"
+
+#: templates/stats/stats_date_filter_form.html:14
+msgid "Apply Date Filter"
+msgstr "Применить фильтр по дате"
+
+#: templates/transaction/category_list.html:5
+msgid "Your categories"
+msgstr "Ваши категории"
+
+#: templates/transaction/create_category.html:22
+msgid "Name"
+msgstr "Название"
+
+#: templates/transaction/create_category.html:26
+msgid "Create"
+msgstr "Создать"
+
+#: templates/transaction/create_recur_trans.html:15
+#: templates/transaction/transaction_list_filter_form.html:13
+#: transaction/templates/transaction/createtransaction.html:13
+msgid "Account"
+msgstr "Счет"
+
+#: templates/transaction/create_recur_trans.html:38
+#: templates/transaction/recur_trans_list.html:7
+msgid "Start date"
+msgstr "Дата начала"
+
+#: templates/transaction/create_recur_trans.html:46
+#: templates/transaction/recur_trans_list.html:8
+msgid "End date"
+msgstr "Дата окончания"
+
+#: templates/transaction/create_recur_trans.html:54
+#: templates/transaction/recur_trans_list.html:9
+#: templates/transaction/transaction_list_part.html:6
+#: transaction/templates/transaction/createtransaction.html:59
+msgid "Amount"
+msgstr "Сумма"
+
+#: templates/transaction/create_recur_trans.html:62
+#: templates/transaction/recur_trans_list.html:11
+#: templates/transaction/transaction_list_filter_form.html:49
+#: templates/transaction/transaction_list_part.html:8
+#: transaction/templates/transaction/createtransaction.html:67
+msgid "Description"
+msgstr "Описание"
+
+#: templates/transaction/create_recur_trans.html:70
+#: templates/transaction/recur_trans_list.html:10
+msgid "Frequency"
+msgstr "Частота"
+
+#: templates/transaction/create_recur_trans.html:79
+msgid "Submit"
+msgstr "Отправить"
+
+#: templates/transaction/recur_trans_list.html:53
+#: templates/transaction/transaction_list_part.html:44
+msgid "No transactions found."
+msgstr "Транзакции не найдены."
+
+#: templates/transaction/transaction_list_filter_form.html:44
+msgid "Sort By"
+msgstr "Сортировать по"
+
+#: templates/transaction/transaction_list_filter_form.html:54
+#: templates/transaction/transaction_list_filter_form_for_stats.html:15
+#: transaction/templates/transaction/transaction_list.html:25
+msgid "Filter"
+msgstr "Фильтр"
+
+#: transaction/models.py:14
+msgid "Daily"
+msgstr "Ежедневно"
+
+#: transaction/models.py:15
+msgid "Weekly"
+msgstr "Еженедельно"
+
+#: transaction/models.py:22
+msgid "Food & Dining"
+msgstr "Еда и рестораны"
+
+#: transaction/models.py:23
+msgid "Transportation"
+msgstr "Транспорт"
+
+#: transaction/models.py:24
+msgid "Shopping"
+msgstr "Покупки"
+
+#: transaction/models.py:25
+msgid "Bills & Utilities"
+msgstr "Счета и коммунальные услуги"
+
+#: transaction/models.py:26
+msgid "Entertainment"
+msgstr "Развлечения"
+
+#: transaction/models.py:27
+msgid "Healthcare"
+msgstr "Здравоохранение"
+
+#: transaction/models.py:28
+msgid "Education"
+msgstr "Образование"
+
+#: transaction/models.py:29
+msgid "Travel"
+msgstr "Путешествия"
+
+#: transaction/models.py:30
+msgid "Personal Care"
+msgstr "Личная гигиена"
+
+#: transaction/models.py:31
+msgid "Gifts & Donations"
+msgstr "Подарки и пожертвования"
+
+#: transaction/models.py:32
+msgid "Home & Garden"
+msgstr "Дом и сад"
+
+#: transaction/models.py:33
+msgid "Insurance"
+msgstr "Страхование"
+
+#: transaction/models.py:34
+msgid "Taxes"
+msgstr "Налоги"
+
+#: transaction/models.py:35
+msgid "Other Expenses"
+msgstr "Прочие расходы"
+
+#: transaction/models.py:37
+msgid "Salary"
+msgstr "Зарплата"
+
+#: transaction/models.py:38
+msgid "Freelance"
+msgstr "Фриланс"
+
+#: transaction/models.py:39
+msgid "Investment"
+msgstr "Инвестиции"
+
+#: transaction/models.py:40
+msgid "Rental Income"
+msgstr "Арендный доход"
+
+#: transaction/models.py:41
+msgid "Business"
+msgstr "Бизнес"
+
+#: transaction/models.py:42
+msgid "Gifts"
+msgstr "Подарки"
+
+#: transaction/models.py:43
+msgid "Other Income"
+msgstr "Прочие доходы"
+
+#: transaction/templates/transaction/account_detail.html:5
+#, python-format
+msgid "%(name)s - Account Details"
+msgstr "%(name)s - Детали счета"
+
+#: transaction/templates/transaction/account_detail.html:13
+#: transaction/templates/transaction/account_form.html:5
+#: transaction/templates/transaction/account_form.html:10
+msgid "Edit Account"
+msgstr "Редактировать счет"
+
+#: transaction/templates/transaction/account_detail.html:14
+msgid "Back to Accounts"
+msgstr "Назад к счетам"
+
+#: transaction/templates/transaction/account_detail.html:20
+msgid "Account Information"
+msgstr "Информация о счете"
+
+#: transaction/templates/transaction/account_detail.html:22
+msgid "Current Balance"
+msgstr "Текущий баланс"
+
+#: transaction/templates/transaction/account_detail.html:24
+msgid "Created"
+msgstr "Создан"
+
+#: transaction/templates/transaction/account_detail.html:25
+msgid "Status"
+msgstr "Статус"
+
+#: transaction/templates/transaction/account_detail.html:25
+msgid "Active"
+msgstr "Активен"
+
+#: transaction/templates/transaction/account_detail.html:25
+msgid "Inactive"
+msgstr "Неактивен"
+
+#: transaction/templates/transaction/account_detail.html:30
+msgid "Total Income"
+msgstr "Общий доход"
+
+#: transaction/templates/transaction/account_detail.html:31
+msgid "Total Expenses"
+msgstr "Общие расходы"
+
+#: transaction/templates/transaction/account_detail.html:32
+msgid "Net Change"
+msgstr "Чистое изменение"
+
+#: transaction/templates/transaction/account_detail.html:37
+msgid "Recent Transactions"
+msgstr "Последние транзакции"
+
+#: transaction/templates/transaction/account_detail.html:44
+msgid "Uncategorized"
+msgstr "Без категории"
+
+#: transaction/templates/transaction/account_detail.html:54
+msgid "No transactions found for this account."
+msgstr "Транзакции для этого счета не найдены."
+
+#: transaction/templates/transaction/account_form.html:49
+msgid "Update Account"
+msgstr "Обновить счет"
+
+#: transaction/templates/transaction/account_form.html:51
+#: transaction/templates/transaction/budget_form.html:107
+msgid "Cancel"
+msgstr "Отмена"
+
+#: transaction/templates/transaction/account_list.html:12
+msgid "Add New Account"
+msgstr "Добавить новый счет"
+
+#: transaction/templates/transaction/account_list.html:27
+msgid "View Details"
+msgstr "Просмотр деталей"
+
+#: transaction/templates/transaction/account_list.html:28
+msgid "Edit"
+msgstr "Редактировать"
+
+#: transaction/templates/transaction/account_list.html:31
+msgid "Are you sure you want to delete this account?"
+msgstr "Вы уверены, что хотите удалить этот счет?"
+
+#: transaction/templates/transaction/account_list.html:31
+#: transaction/templates/transaction/budget_form.html:80
+#: transaction/templates/transaction/budget_form.html:96
+#: transaction/templates/transaction/budget_list.html:23
+msgid "Delete"
+msgstr "Удалить"
+
+#: transaction/templates/transaction/account_list.html:39
+msgid "You don't have any accounts yet."
+msgstr "У вас пока нет счетов."
+
+#: transaction/templates/transaction/account_list.html:40
+msgid "Create Your First Account"
+msgstr "Создайте свой первый счет"
+
+#: transaction/templates/transaction/budget_detail.html:5
+#, python-format
+msgid "Budget: %(budget.name)s"
+msgstr "Бюджет: %(budget.name)s"
+
+#: transaction/templates/transaction/budget_detail.html:10
+msgid "Period"
+msgstr "Период"
+
+#: transaction/templates/transaction/budget_detail.html:16
+#: transaction/templates/transaction/budget_form.html:62
+msgid "Category Limits"
+msgstr "Лимиты по категориям"
+
+#: transaction/templates/transaction/budget_detail.html:22
+msgid "limit"
+msgstr "лимит"
+
+#: transaction/templates/transaction/budget_detail.html:23
+msgid "spent"
+msgstr "потрачено"
+
+#: transaction/templates/transaction/budget_detail.html:24
+msgid "remaining"
+msgstr "осталось"
+
+#: transaction/templates/transaction/budget_detail.html:25
+msgid "Over limit!"
+msgstr "Превышен лимит!"
+
+#: transaction/templates/transaction/budget_detail.html:30
+msgid "No category limits set."
+msgstr "Лимиты по категориям не установлены."
+
+#: transaction/templates/transaction/budget_detail.html:33
+msgid "Transactions in Budget Period"
+msgstr "Транзакции в период бюджета"
+
+#: transaction/templates/transaction/budget_detail.html:39
+msgid "No Category"
+msgstr "Без категории"
+
+#: transaction/templates/transaction/budget_detail.html:47
+msgid "No transactions in the budget period."
+msgstr "Нет транзакций в период бюджета."
+
+#: transaction/templates/transaction/budget_detail.html:50
+msgid "Back to List"
+msgstr "Назад к списку"
+
+#: transaction/templates/transaction/budget_form.html:5
+#: transaction/templates/transaction/budget_form.html:10
+msgid "Edit Budget"
+msgstr "Редактировать бюджет"
+
+#: transaction/templates/transaction/budget_form.html:101
+msgid "Add Category Limit"
+msgstr "Добавить лимит категории"
+
+#: transaction/templates/transaction/budget_form.html:105
+msgid "Update Budget"
+msgstr "Обновить бюджет"
+
+#: transaction/templates/transaction/budget_list.html:5
+msgid "Budgets"
+msgstr "Бюджеты"
+
+#: transaction/templates/transaction/budget_list.html:9
+msgid "Your Budgets"
+msgstr "Ваши бюджеты"
+
+#: transaction/templates/transaction/budget_list.html:23
+msgid "Are you sure?"
+msgstr "Вы уверены?"
+
+#: transaction/templates/transaction/budget_list.html:29
+msgid "No budgets found."
+msgstr "Бюджеты не найдены."
+
+#: transaction/templates/transaction/createtransaction.html:5
+msgid "New Transaction"
+msgstr "Новая транзакция"
+
+#: transaction/templates/transaction/createtransaction.html:74
+msgid "Create Transaction"
+msgstr "Создать транзакцию"

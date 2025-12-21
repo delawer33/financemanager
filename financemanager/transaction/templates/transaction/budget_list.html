@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}
-    Budgets
+    {% trans "Budgets" %}
 {% endblock %}
 
 {% block body %}
-    <h2>Your Budgets</h2>
+    <h2>{% trans "Your Budgets" %}</h2>
 
-    <a href="{% url 'transaction:budget-create' %}" class="btn btn-primary">Create New Budget</a>
+    <a href="{% url 'transaction:budget-create' %}" class="btn btn-primary">{% trans "Create New Budget" %}</a>
 
     {% if budgets %}
         <ul>
@@ -19,12 +20,12 @@
                 &nbsp;
                 <form method="post" action="{% url 'transaction:budget-delete' budget.pk %}" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('{% trans "Are you sure?" %}');">{% trans "Delete" %}</button>
                 </form>
             </li>
         {% endfor %}
         </ul>
     {% else %}
-        <p>No budgets found.</p>
+        <p>{% trans "No budgets found." %}</p>
     {% endif %}
 {% endblock %}

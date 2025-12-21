@@ -1,4 +1,4 @@
-from django.db import IntegrityError
+from django.db import IntegrityError, connection
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -15,46 +15,13 @@ from decimal import Decimal
 
 from .filters import TransactionFilter
 from .forms import (
-    TransactionCreateForm, CategoryForm, RecuringTransactionForm,
+    AccountUpdateForm, TransactionCreateForm, CategoryForm, RecuringTransactionForm,
     AccountForm, BudgetForm, BudgetCategoryLimitFormSet
 )
 from .models import (
     Transaction, Category, RecurringTransaction, 
     Account, Budget, BudgetCategoryLimit, Type
 )
-
-
-@login_required
-def dashboard(request):
-    accounts = Account.objects.filter(user=request.user, is_active=True)
-    total_balance = accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
-    
-    current_budget = Budget.objects.filter(
-        user=request.user,
-        is_active=True,
-        start_date__lte=timezone.now().date(),
-        end_date__gte=timezone.now().date()
-    ).first()
-    
-    recent_transactions = Transaction.objects.filter(
-        user=request.user
-    ).select_related('category', 'account').order_by('-date')[:5]
-    
-    context = {
-        'accounts': accounts,
-        'total_balance': total_balance,
-        'current_budget': current_budget,
-        'recent_transactions': recent_transactions,
-    }
-    
-    if current_budget:
-        context.update({
-            'budget_spent': current_budget.get_spent_amount(),
-            'budget_income': current_budget.get_income_amount(),
-            'budget_remaining': current_budget.get_remaining_budget(),
-        })
-    
-    return render(request, 'transaction/dashboard.html', context)
 
 
 class AccountListView(LoginRequiredMixin, ListView):
@@ -81,7 +48,7 @@ class AccountCreateView(LoginRequiredMixin, CreateView):
 
 class AccountUpdateView(LoginRequiredMixin, UpdateView):
     model = Account
-    form_class = AccountForm
+    form_class = AccountUpdateForm
     template_name = 'transaction/account_form.html'
     success_url = reverse_lazy('transaction:account-list')
     
@@ -111,13 +78,17 @@ class AccountDetailView(LoginRequiredMixin, DetailView):
         
         filter = TransactionFilter(self.request.GET, queryset=transactions)
         
+        income_total = transactions.filter(type=Type.INCOME).aggregate(
+                Sum('amount'))['amount__sum'] or Decimal('0')
+        outcome_total = transactions.filter(type=Type.OUTCOME).aggregate(
+                Sum('amount'))['amount__sum'] or Decimal('0')
+        net_change = income_total - outcome_total
         context.update({
             'transactions': filter.qs,
             'filter': filter,
-            'income_total': transactions.filter(type=Type.INCOME).aggregate(
-                Sum('amount'))['amount__sum'] or Decimal('0'),
-            'outcome_total': transactions.filter(type=Type.OUTCOME).aggregate(
-                Sum('amount'))['amount__sum'] or Decimal('0'),
+            'income_total': income_total,
+            'outcome_total': outcome_total,
+            'net_change': net_change
         })
         
         return context
@@ -168,11 +139,17 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.method == 'POST':
-            context['category_limits'] = BudgetCategoryLimitFormSet(self.request.POST)
+            context['category_limits'] = BudgetCategoryLimitFormSet(
+                self.request.POST,
+                prefix='category_limits',
+            )
         else:
-            context['category_limits'] = BudgetCategoryLimitFormSet()
+            context['category_limits'] = BudgetCategoryLimitFormSet(
+                prefix='category_limits',
+            )
         context['categories'] = Category.objects.filter(
-            Q(is_system=True) | Q(user=self.request.user)
+            Q(is_system=True) | Q(user=self.request.user),
+            type=Type.OUTCOME
         ).order_by('name')
         return context
     
@@ -268,10 +245,35 @@ class TransactionCreate(LoginRequiredMixin, CreateView):
         )
         return form
 
-    def form_valid(self, form):
+    def form_valid(self, form):        
         form.instance.user = self.request.user
-        messages.success(self.request, 'Transaction created successfully!')
-        return super().form_valid(form)
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    DO $$
+                    DECLARE
+                        v_transaction_id INTEGER;
+                    BEGIN
+                        CALL sp_create_transaction_with_balance_update(
+                            %s, %s, %s, %s, %s, %s, %s, v_transaction_id
+                        );
+                    END $$;
+                """, [
+                    self.request.user.id,
+                    form.instance.account.id if form.instance.account else None,
+                    form.instance.category.id if form.instance.category else None,
+                    form.instance.type,
+                    form.instance.amount,
+                    form.instance.date,
+                    form.instance.description or '',
+                ])
+            
+            messages.success(self.request, 'Transaction created successfully!')
+            return redirect(self.success_url)
+            
+        except Exception as e:            
+            messages.error(self.request, f'Error creating transaction: {str(e)}')
+            return self.form_invalid(form)
 
 
 @login_required
@@ -410,7 +412,7 @@ def category_delete(request, pk):
     
     if request.method == 'POST':
         cat.delete()
-        messages.success(request, f'Category "{cat.name}" deleted successfully!')
+        messages.success(request, f'Category "{cat.translated_name}" deleted successfully!')
     
     categories = Category.objects.filter(
         Q(is_system=True) | Q(user=request.user)

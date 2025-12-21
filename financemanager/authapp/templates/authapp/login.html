@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}
-	Login
+	{% trans "Login" %}
 {% endblock %}
 
 {% block body %}
@@ -10,20 +11,20 @@
         <form action="" method="POST">
             {% csrf_token %}
             <div class="form-group">
-                <label for="id_email">Email</label>
+                <label for="id_email">{% trans "Email" %}</label>
                 {{ form.username }}
             </div>
             <div class="form-group">
-                <label for="id_password">Password</label>
+                <label for="id_password">{% trans "Password" %}</label>
                 {{ form.password }}
                 <div class="password-actions">
                     <a href="{% url 'authapp:password_reset' %}" class="forgot-password-link">
-                        <i class="fas fa-key"></i> Forgot Password?
+                        <i class="fas fa-key"></i> {% trans "Forgot Password?" %}
                     </a>
                 </div>
             </div>
             {% include 'includes/form_errors.html' %}
-            <button type="submit">Login</button>
+            <button type="submit">{% trans "Login" %}</button>
         </form>
     </div>
 
