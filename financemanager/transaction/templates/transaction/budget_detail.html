@@ -17,14 +17,14 @@
 
         <div class="budget-info">
             <div class="info-card">
-                <h3>{% trans "Budget Information" %}</h3>
+                <h3>{% trans "Budget Inforamtion" %}</h3>
                 <p><strong>{% trans "Period Type" %}:</strong> {{ budget.get_period_type_display }}</p>
                 <p><strong>{% trans "Period" %}:</strong> {{ budget.start_date|date:"F d, Y" }} — {{ budget.end_date|date:"F d, Y" }}</p>
                 <p><strong>{% trans "Total Expense Limit" %}:</strong> {{ budget.total_expense_limit }} {{ user.currency.symbol }}</p>
             </div>
 
             <div class="info-card">
-                <h3>{% trans "Budget Progress" %}</h3>
+                <h3>{% trans "Progess" %}</h3>
                 <p><strong>{% trans "Spent" %}:</strong> <span class="amount spent">{{ spent_amount }} {{ user.currency.symbol }}</span></p>
                 <p><strong>{% trans "Income" %}:</strong> <span class="amount income">{{ income_amount }} {{ user.currency.symbol }}</span></p>
                 <p><strong>{% trans "Remaining" %}:</strong> <span class="amount {% if remaining_budget < 0 %}over-budget{% else %}remaining{% endif %}">{{ remaining_budget }} {{ user.currency.symbol }}</span></p>

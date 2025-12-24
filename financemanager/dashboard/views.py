@@ -121,9 +121,14 @@ def dashboard(request):
         }
 
     if request.method == "POST":
-        category_limits = BudgetCategoryLimitFormSet(request.POST)
+        category_limits = BudgetCategoryLimitFormSet(
+            request.POST,
+            user=request.user,
+        )
     else:
-        category_limits = BudgetCategoryLimitFormSet()
+        category_limits = BudgetCategoryLimitFormSet(
+            user=request.user,
+        )
 
     categories = budget_categories if current_budget else Category.objects.none()
 
